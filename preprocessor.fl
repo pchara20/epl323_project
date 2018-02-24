@@ -1,0 +1,29 @@
+%{
+	#include <stdio.h>
+	#inclde <string.h>
+	#include <stdlib.h>
+
+	int counter = 0;
+%}
+
+
+
+
+
+
+%%
+
+
+
+
+
+
+%%
+int main(int argc, char *argv[]){
+
+	
+
+	yylex();
+	
+	return 1;
+}	
