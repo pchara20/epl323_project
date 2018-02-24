@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+int kokos12( int sasa,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd ){}
+
 
 int foo1(int a){
  return a;

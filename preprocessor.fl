@@ -14,12 +14,15 @@ string		\"([^\"])*\"
 space 		[ ]
 var_type	void|int
 %%
-{var_type}{space}{letter}+{space}?[(]({var_type}{space}{letter}+","{space})*" "?{var_type}" "{letter}+")"[ ]?"{" 	{	
+{var_type}{space}{letter}+{space}?[(]{space}*({var_type}{space}+{letter}+","{space}?)*" "?{var_type}" "{letter}+{space}*")"{space}*"{" 	{	
 
 					char func_name[50];
 					strcpy(func_name,yytext);
+					char *name_token2;
+					name_token2=strtok(func_name,"(");
+					printf("token2 : %s\n",name_token2);
 					char *name_token;
-					name_token=strtok(func_name," ");
+					name_token=strtok(name_token2," ");
 					name_token=strtok(NULL," ");
 					strcpy(func_name,name_token);
 					//printf("func name= %s\n",func_name);					
