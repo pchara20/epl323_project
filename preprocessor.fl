@@ -48,7 +48,12 @@ var_type	void|int
 					}
 				
 				}
-
+{var_type}{space}{letter}+{space}?"("{space}?"){"	{
+					fprintf(yyout, "%s", yytext);
+				}
+{letter}+[(]({digit}+","{space})*{space}?{digit}+")"	{
+					printf("%s\n", yytext);	
+				}
 {whitespace}+	{fprintf(yyout,"%s",yytext);}
 .		{fprintf(yyout,"%s",yytext);}
 %%
