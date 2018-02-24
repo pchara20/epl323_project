@@ -760,42 +760,61 @@ case 1:
 YY_RULE_SETUP
 #line 17 "preprocessor.fl"
 {	
-					
+
 					char func_name[50];
-					char buffer[50];	
-					char temp[50];		
-					memset(temp,0,0);		
-					strcpy(buffer,yytext);					
-					int index=0;
-					char *token;
-					token = strtok(buffer,"(");
-					while (token!=NULL){
-						strcpy(temp,token);
-						index++;
-						if (index==1){
-							char *token3=strtok(temp," ");
-							token3=strtok(NULL," ");
-							strcpy(func_name,token3);
-						}
-						printf("name: %s\n",func_name);
-						if (index==2){
-							counter=0;
-							printf("number of args = %s\n",token);
-							char buffer2[50];
-							char *token2=strtok(token,",");
-							while (token2!=NULL){
-								counter++;
-								token2=strtok(NULL,",");
-							}
-							printf("%d\n",counter);
+					strcpy(func_name,yytext);
+					char *name_token;
+					name_token=strtok(func_name," ");
+					name_token=strtok(NULL," ");
+					strcpy(func_name,name_token);
+					//printf("func name= %s\n",func_name);					
+					char args_count[50];
+					char *arg_token;
+					int counter=0;
+					strcpy(args_count,yytext);
+					arg_token=strtok(args_count,"(");
+					arg_token=strtok(NULL,"(");
+					char *arg=strtok(arg_token,",");
+					while (arg!=NULL){
+						counter++;
+						arg=strtok(NULL,",");
 					}
-						token = strtok(NULL,")");
-					}
+					//printf("number of args: %d\n",counter);
+					//printf("yytext has: %s\n",yytext); 
+
+					char final[200];
+					char buffer[200];
+					strcpy(buffer,yytext);
+					char *token = strtok(buffer," ");					
+					printf("token is: %s\n",token);
+					
+					char temp[50];
+					strcpy(temp,token);
+					
+					strcpy(final,temp);
+					
+					strcat(final," ");
+					strcat(final,func_name);
+					char num[10];
+					sprintf(num,"%d",counter);
+					
+					strcat(final,num);
+					strcat(final,"(");
+					char *tok=strtok(yytext,"(");
+					tok=strtok(NULL,"(");
+					strcat(final,tok);
+
+					fprintf(yyout,"%s",final);
+					printf("final: %s\n",final);
+										
+					
+
 				
 				}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 51 "preprocessor.fl"
 {
 					fprintf(yyout, "%s", yytext);
@@ -807,10 +826,20 @@ YY_RULE_SETUP
 {
 					printf("%s\n", yytext);	
 				}
+=======
+#line 70 "preprocessor.fl"
+{fprintf(yyout,"%s",yytext);}
+	YY_BREAK
+case 3:
+YY_RULE_SETUP
+#line 71 "preprocessor.fl"
+{fprintf(yyout,"%s",yytext);}
+>>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 57 "preprocessor.fl"
 {fprintf(yyout,"%s",yytext);}
 	YY_BREAK
@@ -825,6 +854,12 @@ YY_RULE_SETUP
 ECHO;
 	YY_BREAK
 #line 828 "lex.yy.c"
+=======
+#line 72 "preprocessor.fl"
+ECHO;
+	YY_BREAK
+#line 820 "lex.yy.c"
+>>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1818,13 +1853,17 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
+<<<<<<< HEAD
 #line 59 "preprocessor.fl"
+=======
+#line 72 "preprocessor.fl"
+>>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
 
 
 int main(int argc, char *argv[]){
 	
 	yyin=fopen("file.c","r");
-	yyout=fopen("out.c","a");
+	yyout=fopen("out.c","w");
 	yylex();
 	
 	return 1;
