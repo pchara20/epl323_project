@@ -6,17 +6,19 @@
 	int counter = 0;
 %}
 
-
-
-ajhdakjdhakjshdkajshdkajhdskjahasjhdakdhskasjdskjdnasjndkajndskjbkajbdkasbd
-askajhaskajhdkajshdjkahdksd
-
+letter		[a-zA-Z]
+digit		[0-9]
+whitespace	[ \n\t]
+comment		"/*"((\*+[^/*])|([^*]))*\**"*/"
+string		\"([^\"])*\"
+var_type	"void"|"int"
 %%
-
-
-
-
-
+{letter}+	
+{digit}+
+{var_type}" "{letter}+" "?"("({var_type}" "{letter}+",")*" "?({var_type}" "{letter}+)"){" {
+}
+{whitespace}+	/*******do nothing*******/
+.		/*******do nothing*******/
 
 %%
 int main(int argc, char *argv[]){
