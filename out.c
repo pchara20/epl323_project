@@ -12,9 +12,9 @@ int foo3(int a, int b, int c){
 }
 void main(){
  printf("Calling foo: %d\n",
-);
+foo1(10));
  printf("Calling foo: %d\n",
-);
+foo2(10, 10));
  printf("Calling foo: %d\n",
-);
+foo3(10, 10, 10));
 } 

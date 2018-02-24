@@ -63,6 +63,37 @@ var_type	void|int
 					fprintf(yyout, "%s", yytext);
 				}
 {letter}+[(]({digit}+","{space})*{space}?{digit}+")"	{
+
+					char func_name[50];
+					strcpy(func_name,yytext);
+					char *name_token;
+					name_token=strtok(func_name,"(");					
+					strcpy(func_name,name_token);
+					printf("func name= %s\n",func_name);
+					
+					char args_count[50];
+					char *arg_token;
+					int counter=0;
+					strcpy(args_count,yytext);
+					arg_token=strtok(args_count,"(");
+					arg_token=strtok(NULL,"(");
+					char *arg=strtok(arg_token,",");
+					while (arg!=NULL){
+						counter++;
+						arg=strtok(NULL,",");
+					}
+					char final[200];									
+					strcpy(final,func_name);
+					char num[10];
+					sprintf(num,"%d",counter);
+					
+					strcat(final,num);
+					strcat(final,"(");
+					char *tok=strtok(yytext,"(");
+					tok=strtok(NULL,"(");
+					strcat(final,tok);
+					fprintf(yyout,"%s",final);
+					printf("final: %s\n",final);	
 					printf("%s\n", yytext);	
 				}
 {whitespace}+	{fprintf(yyout,"%s",yytext);}
