@@ -1,54 +1,61 @@
 %{
 	#include <stdio.h>
-	#inclde <string.h>
+	#include <string.h>
 	#include <stdlib.h>
 
 	int counter = 0;
+	
 %}
-
-
-
-ajhdakjdhakjshdkajshdkajhdskjahasjhdakdhskasjdskjdnasjndkajndskjbkajbdkasbd
-askajhaskajhdkajshdjkahdksd
-
+letter		[a-zA-Z]
+digit		[0-9]
+whitespace	[ \n\t]
+comment		"/*"((\*+[^/*])|([^*]))*\**"*/"
+string		\"([^\"])*\"
+space 		[ ]
+var_type	void|int
 %%
-		
-
-
-
-
-
-
-
-
-	KANONAS	{	    char buffer[50];
-					memset(buffer,0,sizeof buffer);
-					strcpy(buffer,yytext); 	
+{var_type}{space}{letter}+{space}?[(]({var_type}{space}{letter}+","{space})*" "?{var_type}" "{letter}+"){" 	{	
+					
+					char func_name[50];
+					char buffer[50];	
+					char temp[50];		
+					memset(temp,0,0);		
+					strcpy(buffer,yytext);					
 					int index=0;
 					char *token;
-					token = strtok(buffer,' ');
+					token = strtok(buffer,"(");
 					while (token!=NULL){
+						strcpy(temp,token);
 						index++;
-						printf ("Token is: %s\n",token);
-						if (index==2)
-							printf("Name of function = %d\n",token);
-						token = strtok(NULL,s);
+						if (index==1){
+							char *token3=strtok(temp," ");
+							token3=strtok(NULL," ");
+							strcpy(func_name,token3);
+						}
+						printf("name: %s\n",func_name);
+						if (index==2){
+							counter=0;
+							printf("number of args = %s\n",token);
+							char buffer2[50];
+							char *token2=strtok(token,",");
+							while (token2!=NULL){
+								counter++;
+								token2=strtok(NULL,",");
+							}
+							printf("%d\n",counter);
+					}
+						token = strtok(NULL,")");
 					}
 				
 				}
-	
-	{WHITESPACE} 
-	. 
-					
 
-
-
-
-
+{whitespace}+	{fprintf(yyout,"%s",yytext);}
+.		{fprintf(yyout,"%s",yytext);}
 %%
 int main(int argc, char *argv[]){
-
+	
 	yyin=fopen("file.c","r");
+	yyout=fopen("out.c","a");
 	yylex();
 	
 	return 1;
