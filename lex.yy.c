@@ -779,9 +779,6 @@ YY_RULE_SETUP
 						counter++;
 						arg=strtok(NULL,",");
 					}
-					//printf("number of args: %d\n",counter);
-					//printf("yytext has: %s\n",yytext); 
-
 					char final[200];
 					char buffer[200];
 					strcpy(buffer,yytext);
@@ -803,63 +800,42 @@ YY_RULE_SETUP
 					char *tok=strtok(yytext,"(");
 					tok=strtok(NULL,"(");
 					strcat(final,tok);
-
 					fprintf(yyout,"%s",final);
-					printf("final: %s\n",final);
-										
+					printf("final: %s\n",final);	
 					
-
-				
 				}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-<<<<<<< HEAD
-#line 51 "preprocessor.fl"
+#line 62 "preprocessor.fl"
 {
 					fprintf(yyout, "%s", yytext);
 				}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 54 "preprocessor.fl"
+#line 65 "preprocessor.fl"
 {
 					printf("%s\n", yytext);	
 				}
-=======
-#line 70 "preprocessor.fl"
-{fprintf(yyout,"%s",yytext);}
-	YY_BREAK
-case 3:
-YY_RULE_SETUP
-#line 71 "preprocessor.fl"
-{fprintf(yyout,"%s",yytext);}
->>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-<<<<<<< HEAD
-#line 57 "preprocessor.fl"
+#line 68 "preprocessor.fl"
 {fprintf(yyout,"%s",yytext);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 58 "preprocessor.fl"
+#line 69 "preprocessor.fl"
 {fprintf(yyout,"%s",yytext);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 59 "preprocessor.fl"
+#line 70 "preprocessor.fl"
 ECHO;
 	YY_BREAK
-#line 828 "lex.yy.c"
-=======
-#line 72 "preprocessor.fl"
-ECHO;
-	YY_BREAK
-#line 820 "lex.yy.c"
->>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
+#line 839 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1853,11 +1829,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-<<<<<<< HEAD
-#line 59 "preprocessor.fl"
-=======
-#line 72 "preprocessor.fl"
->>>>>>> 4a31fe34f3ab0044f3e41f19f1aa75223723de9c
+#line 70 "preprocessor.fl"
 
 
 int main(int argc, char *argv[]){
