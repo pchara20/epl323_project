@@ -14,7 +14,7 @@ string		\"([^\"])*\"
 space 		[ ]
 var_type	void|int
 %%
-{var_type}{space}{letter}+{space}?[(]({var_type}{space}{letter}+","{space})*" "?{var_type}" "{letter}+"){" 	{	
+{var_type}{space}{letter}+{space}?[(]({var_type}{space}{letter}+","{space})*" "?{var_type}" "{letter}+")"[ ]?"{" 	{	
 
 					char func_name[50];
 					strcpy(func_name,yytext);
