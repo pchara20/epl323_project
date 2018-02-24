@@ -12,7 +12,34 @@ ajhdakjdhakjshdkajshdkajhdskjahasjhdakdhskasjdskjdnasjndkajndskjbkajbdkasbd
 askajhaskajhdkajshdjkahdksd
 
 %%
+		
 
+
+
+
+
+
+
+
+	KANONAS	{	    char buffer[50];
+					memset(buffer,0,sizeof buffer);
+					strcpy(buffer,yytext); 	
+					int index=0;
+					char *token;
+					token = strtok(buffer,' ');
+					while (token!=NULL){
+						index++;
+						printf ("Token is: %s\n",token);
+						if (index==2)
+							printf("Name of function = %d\n",token);
+						token = strtok(NULL,s);
+					}
+				
+				}
+
+	{WHITESPACE} 
+	. 
+					
 
 
 
@@ -21,8 +48,7 @@ askajhaskajhdkajshdjkahdksd
 %%
 int main(int argc, char *argv[]){
 
-	sfdsdsdsffdsdffds
-uytuyuytuytuytuytuytuytuytuytuytuytuytuy
+	
 	yylex();
 	
 	return 1;
