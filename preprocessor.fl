@@ -36,7 +36,7 @@ askajhaskajhdkajshdjkahdksd
 					}
 				
 				}
-
+	
 	{WHITESPACE} 
 	. 
 					
@@ -48,7 +48,7 @@ askajhaskajhdkajshdjkahdksd
 %%
 int main(int argc, char *argv[]){
 
-	
+	yyin=fopen("file.c","r");
 	yylex();
 	
 	return 1;
