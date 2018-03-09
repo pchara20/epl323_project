@@ -4,13 +4,8 @@
 	int counter = 0;
 %}
 
-letter		[a-zA-Z]
-digit		[0-9]
 whitespace	[ \r\t]
 comment		"/*"((\*+[^/*])|([^*]))*\**"*/"
-string		\"([^\"])*\"
-space 		[ ]
-var_type	void|int
 %%
 else		return ELSE;
 if			return IF;
@@ -51,92 +46,6 @@ while		return WHILE;
 		}
 {whitespace}*	{/*do nothing*/}
 .		{ECHO; yyerror("Unexpected character\n");}
-
-{var_type}{space}{letter}+{space}?[(]{space}*({var_type}{space}+{letter}+","{space}?)*" "?{var_type}" "{letter}+{space}*")"{space}*"{" 	{	
-
-					char func_name[50];
-					strcpy(func_name,yytext);
-					char *name_token2;
-					name_token2=strtok(func_name,"(");
-					printf("token2 : %s\n",name_token2);
-					char *name_token;
-					name_token=strtok(name_token2," ");
-					name_token=strtok(NULL," ");
-					strcpy(func_name,name_token);
-					//printf("func name= %s\n",func_name);					
-					char args_count[50];
-					char *arg_token;
-					int counter=0;
-					strcpy(args_count,yytext);
-					arg_token=strtok(args_count,"(");
-					arg_token=strtok(NULL,"(");
-					char *arg=strtok(arg_token,",");
-					while (arg!=NULL){
-						counter++;
-						arg=strtok(NULL,",");
-					}
-					char final[200];
-					char buffer[200];
-					strcpy(buffer,yytext);
-					char *token = strtok(buffer," ");					
-					printf("token is: %s\n",token);
-					
-					char temp[50];
-					strcpy(temp,token);
-					
-					strcpy(final,temp);
-					
-					strcat(final," ");
-					strcat(final,func_name);
-					char num[10];
-					sprintf(num,"%d",counter);
-					
-					strcat(final,num);
-					strcat(final,"(");
-					char *tok=strtok(yytext,"(");
-					tok=strtok(NULL,"(");
-					strcat(final,tok);
-					fprintf(yyout,"%s",final);
-					printf("final: %s\n",final);	
-					
-				}
-{var_type}{space}{letter}+{space}?"("{space}?"){"	{
-					fprintf(yyout, "%s", yytext);
-				}
-{letter}+[(]({digit}+","{space})*{space}?{digit}+")"	{
-
-					char func_name[50];
-					strcpy(func_name,yytext);
-					char *name_token;
-					name_token=strtok(func_name,"(");					
-					strcpy(func_name,name_token);
-					printf("func name= %s\n",func_name);
-					
-					char args_count[50];
-					char *arg_token;
-					int counter=0;
-					strcpy(args_count,yytext);
-					arg_token=strtok(args_count,"(");
-					arg_token=strtok(NULL,"(");
-					char *arg=strtok(arg_token,",");
-					while (arg!=NULL){
-						counter++;
-						arg=strtok(NULL,",");
-					}
-					char final[200];									
-					strcpy(final,func_name);
-					char num[10];
-					sprintf(num,"%d",counter);
-					
-					strcat(final,num);
-					strcat(final,"(");
-					char *tok=strtok(yytext,"(");
-					tok=strtok(NULL,"(");
-					strcat(final,tok);
-					fprintf(yyout,"%s",final);
-					printf("final: %s\n",final);	
-					printf("%s\n", yytext);	
-				}
 %%
 int yywrap(){
 	return 1;
