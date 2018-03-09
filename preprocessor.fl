@@ -2,18 +2,62 @@
 	#include <stdio.h>
 	#include <string.h>
 	#include <stdlib.h>
-
+	#include "preprocessor.tab.h"
+	int lineno = 1;
 	int counter = 0;
-	
 %}
+
 letter		[a-zA-Z]
 digit		[0-9]
-whitespace	[ \n\t]
+whitespace	[ \r\t]
 comment		"/*"((\*+[^/*])|([^*]))*\**"*/"
 string		\"([^\"])*\"
 space 		[ ]
 var_type	void|int
 %%
+else		return ELSE;
+if		return IF;
+int		return INT;
+return		return RETURN;
+void		return VOID;
+while		return WHILE;
+[0-9]+		return NUM;
+[a-zA-Z]+	return ID;
+"++"		return INCREASE;
+"--"		return DECREASE;
+"+="		return INCR_EQUAL;
+"-="		return DECR_EQUAL;
+"+"		return PLUS;
+"-"		return MINUS;
+"*"		return TIMES;
+"/"		return DIVISION;
+"<"		return LT;
+"<="		return LTEQ;
+">"		return GT;
+">="		return GTEQ;
+"=="		return EQUAL;
+"!="		return NEQ;
+"="		return ASSIGN;
+";"		return SEMICOLON;
+","		return COMMA;
+"("		return LEFT_PAREN;
+")"		return RIGHT_PAREN;
+"["		return LEFT_BRACKET;
+"]"		return RIGHT_BRACKET;
+"{"		return LEFT_BRACE;
+"}"		return RIGHT_BRACE;
+
+[\n]		{yylineno++;}
+{comment}	{
+			int i = 0;
+			for (i = 0; i < yyleng; i++){
+				if (yytext[i] == '\n')
+					yylineno++;
+			}
+		}
+{whitespace}*	{/*do nothing*/}
+.		{ECHO; yyerror("Unexpected character\n");}
+
 {var_type}{space}{letter}+{space}?[(]{space}*({var_type}{space}+{letter}+","{space}?)*" "?{var_type}" "{letter}+{space}*")"{space}*"{" 	{	
 
 					char func_name[50];
@@ -99,14 +143,7 @@ var_type	void|int
 					printf("final: %s\n",final);	
 					printf("%s\n", yytext);	
 				}
-{whitespace}+	{fprintf(yyout,"%s",yytext);}
-.		{fprintf(yyout,"%s",yytext);}
 %%
-int main(int argc, char *argv[]){
-	
-	yyin=fopen("file.c","r");
-	yyout=fopen("out.c","w");
-	yylex();
-	
+int yywrap(){
 	return 1;
-}	
+}
