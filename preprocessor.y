@@ -34,14 +34,15 @@
 %type <character> expression_stmt selection_stmt iteration_stmt return_stmt
 %type <character> expression var simple_expression relop additive_expression
 %type <character> addop term mulop factor args arg_list
-%type <word> error call WHILE ID IF ELSE
+%type <word> error call
 
-%nonassoc LT LTEQ GT GTEQ EQUAL NEQ
+%nonassoc "if"
+%nonassoc ELSE
+
 %left PLUS MINUS
 %left TIMES DIVISION
 
 %%
-
 program : declaration_list	{}
 	;
 
@@ -53,30 +54,35 @@ declaration : var_declaration 				{}
 	| fun_declaration				{}
 	;
 
-var_declaration : type_specifier ID SEMICOLON 		{}
+var_declaration : type_specifier ID SEMICOLON 				{}
 	| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON	{}
+	| type_specifier error						{yyerrok; yyclearin;}
 	;
 
 type_specifier : INT	{$$ = "int";} 
 	| VOID		{$$ = "void";}
+	| error		{yyerrok; yyclearin;}
 	;
 
 fun_declaration : type_specifier ID LEFT_PAREN params RIGHT_PAREN compound_stmt		{}
+	| type_specifier ID error params RIGHT_PAREN compound_stmt			{yyerrok;}
+	| type_specifier ID LEFT_PAREN params error compound_stmt			{yyerrok;}
 	;
 
 params : param_list	{}
 	| VOID		{}
 	;
 
-param_list : param_list COMMA param
-	| param
+param_list : param_list COMMA param				{}
+	| param							{}
 	;
 
-param : type_specifier ID
-	| type_specifier ID LEFT_BRACKET RIGHT_BRACKET
+param : type_specifier ID					{}
+	| type_specifier ID LEFT_BRACKET RIGHT_BRACKET		{}
+	| error							{yyerrok; yyclearin;}
 	;
 
-compound_stmt : LEFT_BRACE local_declarations statement_list RIGHT_BRACE
+compound_stmt : LEFT_BRACE local_declarations statement_list RIGHT_BRACE	{}
 	;
 
 local_declarations : local_declarations var_declaration 	{}
@@ -92,10 +98,12 @@ statement : expression_stmt			{}
 	| selection_stmt			{}
 	| iteration_stmt			{}
 	| return_stmt				{}
+	| error	SEMICOLON				{yyerrok; yyclearin;}
 	;
 
 expression_stmt : expression SEMICOLON		{}
 	| SEMICOLON				{}
+	| error					{yyerrok; yyclearin;}
 	;
 
 selection_stmt : IF LEFT_PAREN expression RIGHT_PAREN statement			{}
@@ -109,19 +117,19 @@ return_stmt : RETURN SEMICOLON			{}
 	| RETURN expression SEMICOLON		{}
 	;
 
-expression : var ASSIGN expression 
-	| simple_expression
+expression : var ASSIGN expression 	{}
+	| simple_expression		{}
 	| var INCREASE			{}
 	| var DECREASE			{}
 	| var INCR_EQUAL NUM		{}
 	| var DECR_EQUAL NUM		{}
 	;
 
-var : ID 						{$$ = $1;}
-	| ID LEFT_BRACKET expression RIGHT_BRACKET	{$$ = $1;}
+var : ID 						{}
+	| ID LEFT_BRACKET expression RIGHT_BRACKET	{}
 	;
 
-simple_expression : additive_expression relop additive_expression
+simple_expression : additive_expression relop additive_expression	{}
 	| additive_expression						{}
 	;
 
@@ -141,7 +149,7 @@ addop : PLUS		{}
 	| MINUS		{}
 	;
 
-term : term mulop factor
+term : term mulop factor	{}
 	| factor		{$$ = $1;}
 	;
 
@@ -155,15 +163,15 @@ factor : LEFT_PAREN expression RIGHT_PAREN	{}
 	| NUM					{}
 	;
 
-call : ID LEFT_PAREN args RIGHT_PAREN
+call : ID LEFT_PAREN args RIGHT_PAREN	{}
 	;
 
 args : arg_list 	{}
 	| /*epsilon*/	{}
 	;
 
-arg_list : arg_list COMMA expression 
-	| expression
+arg_list : arg_list COMMA expression 	{}
+	| expression			{}
 	;
 %%
 int main(int argc, char *argv[]){
