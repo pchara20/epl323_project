@@ -1,13 +1,14 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* Skeleton interface for Bison's Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
+   This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +16,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -30,80 +33,90 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_PREPROCESSOR_TAB_H_INCLUDED
-# define YY_YY_PREPROCESSOR_TAB_H_INCLUDED
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token type.  */
+/* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-  enum yytokentype
-  {
-    ELSE = 258,
-    IF = 259,
-    INT = 260,
-    RETURN = 261,
-    VOID = 262,
-    WHILE = 263,
-    ID = 264,
-    NUM = 265,
-    PLUS = 266,
-    MINUS = 267,
-    TIMES = 268,
-    DIVISION = 269,
-    LT = 270,
-    LTEQ = 271,
-    GT = 272,
-    GTEQ = 273,
-    EQUAL = 274,
-    NEQ = 275,
-    ASSIGN = 276,
-    SEMICOLON = 277,
-    COMMA = 278,
-    LEFT_PAREN = 279,
-    RIGHT_PAREN = 280,
-    LEFT_BRACKET = 281,
-    RIGHT_BRACKET = 282,
-    LEFT_BRACE = 283,
-    RIGHT_BRACE = 284,
-    INCREASE = 285,
-    DECREASE = 286,
-    INCR_EQUAL = 287,
-    DECR_EQUAL = 288
-  };
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     PLUS = 258,
+     MINUS = 259,
+     TIMES = 260,
+     DIVISION = 261,
+     LT = 262,
+     LTEQ = 263,
+     GT = 264,
+     GTEQ = 265,
+     EQUAL = 266,
+     NEQ = 267,
+     ASSIGN = 268,
+     SEMICOLON = 269,
+     COMMA = 270,
+     LEFT_PAREN = 271,
+     RIGHT_PAREN = 272,
+     LEFT_BRACKET = 273,
+     RIGHT_BRACKET = 274,
+     LEFT_BRACE = 275,
+     RIGHT_BRACE = 276,
+     IF = 277,
+     ELSE = 278,
+     RETURN = 279,
+     VOID = 280,
+     INT = 281,
+     WHILE = 282,
+     ID = 283,
+     NUM = 284
+   };
 #endif
+/* Tokens.  */
+#define PLUS 258
+#define MINUS 259
+#define TIMES 260
+#define DIVISION 261
+#define LT 262
+#define LTEQ 263
+#define GT 264
+#define GTEQ 265
+#define EQUAL 266
+#define NEQ 267
+#define ASSIGN 268
+#define SEMICOLON 269
+#define COMMA 270
+#define LEFT_PAREN 271
+#define RIGHT_PAREN 272
+#define LEFT_BRACKET 273
+#define RIGHT_BRACKET 274
+#define LEFT_BRACE 275
+#define RIGHT_BRACE 276
+#define IF 277
+#define ELSE 278
+#define RETURN 279
+#define VOID 280
+#define INT 281
+#define WHILE 282
+#define ID 283
+#define NUM 284
 
-/* Value type.  */
+
+
+
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
+typedef union YYSTYPE
+#line 19 "preprocessor.y"
 {
-#line 16 "preprocessor.y" /* yacc.c:1909  */
-
 	char *word;
 	
-#line 19 "preprocessor.y" /* yacc.c:1909  */
+#line 22 "preprocessor.y"
 
 	char *character;
-	
-
-#line 97 "preprocessor.tab.h" /* yacc.c:1909  */
-};
-
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
+	}
+/* Line 1529 of yacc.c.  */
+#line 115 "preprocessor.tab.h"
+	YYSTYPE;
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
 #endif
-
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
-
-#endif /* !YY_YY_PREPROCESSOR_TAB_H_INCLUDED  */

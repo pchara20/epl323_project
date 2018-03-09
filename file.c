@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 int kokos ( int sasa,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd,int asd ){}
 
 
