@@ -7,3 +7,4 @@ Part A - Preprocessor
 flex preprocessor_952304_1003060_932787.fl
 gcc lex.yy.c -lfl -o a.out
 ./a.out inputFile.c outputFile.c
+
