@@ -16,6 +16,8 @@
 	void yyerror(const char *s);
 %}
 
+%expect 2
+
 %union {
 	char *word;
 	}
@@ -212,5 +214,5 @@ int main(int argc, char *argv[]){
 
 void yyerror(const char *s){
 
-	printf("Found error line: %d : %s\n", yylineno, s);
+	printf("Found error line: %d : %s : %s\n", yylineno, s, yytext);
 }
