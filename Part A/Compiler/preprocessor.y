@@ -8,7 +8,6 @@
 	extern int yylex();
 	extern int yylineno;
 	extern FILE *yyin;
-	extern FILE *yyout;
 	int yydebug = 1;
 	
 	#define YYDEBUG_LEXER_TEXT yytext
@@ -201,12 +200,8 @@ int main(int argc, char *argv[]){
 	if (argc < 2){
 		printf("Wrong number of arguments given!\n");
 		return -1;
-	} else if (argc < 3){
-		printf("Output file not specified!\n");
-		return -1;
 	} else {
 		yyin = fopen(argv[1], "r");
-		yyout = fopen(argv[2], "w");
 		yyparse();
 	}
 	return 1;
