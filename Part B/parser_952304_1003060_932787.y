@@ -14,6 +14,7 @@
 	#include <stdlib.h>
 	#include <math.h>
 	#include <string.h>
+	#include "symboltable.h"
 
 	extern char *yytext;
 	extern int yylex();
@@ -29,7 +30,7 @@
 %expect 2
 
 %union {	char *word;	}
-%union {	char *character;	}
+%union {	char *character; }
 
 %start program
 
@@ -75,7 +76,7 @@
 %type <character> expression_stmt selection_stmt iteration_stmt return_stmt
 %type <character> expression var simple_expression relop additive_expression
 %type <character> addop term mulop factor args arg_list for_stmt
-%type <word> error call for
+%type <word> error call
 
 %nonassoc "if"
 %nonassoc ELSE
@@ -95,7 +96,8 @@
 		| fun_declaration						{}
 	;
 
-	var_declaration : type_specifier ID SEMICOLON 						{}
+	var_declaration : type_specifier ID SEMICOLON 						{if stack == NULL {
+	                             }
 		| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON	{}
 		| type_specifier error											{yyerrok; yyclearin;}
 	;
