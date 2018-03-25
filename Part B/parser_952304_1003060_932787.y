@@ -1,4 +1,4 @@
-% {
+%{
 	/******************************************************************
 	Panayiotis Charalambous - pchara20 ID: 952304					***
 	Andreas Costi			- acosti01 ID: 1003060					***
@@ -31,67 +31,66 @@
 
 	void yyerror(const char *s);
 
-	%
-}
+%}
 
-% expect 4
+%expect 4
 
-% union {	char *word;	}
-% union {	char *character; }
+%union {	char *word;	}
+%union {	char *character; }
 
-% start program
+%start program
 
-% token PLUS
-% token MINUS
-% token TIMES
-% token DIVISION
-% token LT
-% token LTEQ
-% token GT
-% token GTEQ
-% token EQUAL
-% token NEQ
-% token ASSIGN
-% token SEMICOLON
-% token COMMA
-% token LEFT_PAREN
-% token RIGHT_PAREN
-% token LEFT_BRACKET
-% token RIGHT_BRACKET
-% token LEFT_BRACE
-% token RIGHT_BRACE
-% token IF
-% token ELSE
-% token RETURN
-% token VOID
-% token INT
-% token FLOAT
-% token FLOAT_NUM
-% token WHILE
-% token ID
-% token NUM
-% token PLUSEQ
-% token MINUSEQ
-% token INC
-% token DEC
-% token FOR
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVISION
+%token LT
+%token LTEQ
+%token GT
+%token GTEQ
+%token EQUAL
+%token NEQ
+%token ASSIGN
+%token SEMICOLON
+%token COMMA
+%token LEFT_PAREN
+%token RIGHT_PAREN
+%token LEFT_BRACKET
+%token RIGHT_BRACKET
+%token LEFT_BRACE
+%token RIGHT_BRACE
+%token IF
+%token ELSE
+%token RETURN
+%token VOID
+%token INT
+%token FLOAT
+%token FLOAT_NUM
+%token WHILE
+%token ID
+%token NUM
+%token PLUSEQ
+%token MINUSEQ
+%token INC
+%token DEC
+%token FOR
 
 
-% type <character> program declaration_list declaration var_declaration
-% type <character> type_specifier fun_declaration params param_list param
-% type <character> compound_stmt local_declarations statement_list statement
-% type <character> expression_stmt selection_stmt iteration_stmt return_stmt
-% type <character> expression var simple_expression relop additive_expression
-% type <character> addop term mulop factor args arg_list for_stmt
-% type <word> error call
+%type <character> program declaration_list declaration var_declaration
+%type <character> type_specifier fun_declaration params param_list param
+%type <character> compound_stmt local_declarations statement_list statement
+%type <character> expression_stmt selection_stmt iteration_stmt return_stmt
+%type <character> expression var simple_expression relop additive_expression
+%type <character> addop term mulop factor args arg_list for_stmt
+%type <word> error call
 
-% nonassoc "if"
-% nonassoc ELSE
+%nonassoc "if"
+%nonassoc ELSE
 
-% left PLUS MINUS
-% left TIMES DIVISION
+%left PLUS MINUS
+%left TIMES DIVISION
 
-% %
+%%
 program : declaration_list	{}
 ;
 
@@ -254,9 +253,13 @@ param : type_specifier ID
 }
 ;
 
-compound_stmt : LEFT_BRACE local_declarations statement_list RIGHT_BRACE
+compound_stmt : LEFT_BRACE local_declarations statement_list RIGHT_BRACE 
 {
-
+   hashtable *hashTable = NULL;
+   if (stack->hashTables[stack->size-1]->isFunction == 1){
+      createHashTable(hashTable, stack->hashTables[stack->size-1]->namefunction,stack->hashTables[stack->size-1]->typefunction, stack->hashTables[stack->size-1]->isFunction);
+      push(hashTable, stack);
+   }
 }
 ;
 
@@ -281,8 +284,8 @@ expression_stmt : expression SEMICOLON		{}
 | error									{yyclearin;}
 ;
 
-selection_stmt : if LEFT_PAREN expression RIGHT_PAREN statement % prec "if"			{}
-| if LEFT_PAREN expression RIGHT_PAREN statement % prec "if" else statement		{}
+selection_stmt : if LEFT_PAREN expression RIGHT_PAREN statement %prec "if"			{}
+| if LEFT_PAREN expression RIGHT_PAREN statement %prec "if" else statement		{}
 		;
 
 if : IF {
@@ -349,13 +352,16 @@ expression : var ASSIGN expression
 	}
 }
 | var error expression               {yyerrok;}
-| simple_expression				{}
+| simple_expression				{
+                        if(isfunction!=-1){ 
+                              if(compareArgs(stack,typeofarg,isfunction,istable)!=1)
+                                    printf("ERROR, wrong type of argument in line %d\n",yylineno); }
+                                                 }
 | var INC                             {}
 | var DEC                         {}
 | var PLUSEQ NUM                {}
 | var MINUSEQ NUM                {}
 ;
-
 
 var : ID 										
 {
@@ -446,7 +452,7 @@ arg_list : arg_list COMMA expression
 	countArgList++;
 }
 ;
-% %
+%%
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		printf("Wrong number of arguments given!\n");

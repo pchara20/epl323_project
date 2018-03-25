@@ -129,6 +129,68 @@ int insertNode(NODE* node,STACK *stack){
    stack->hashTables[node->parentPosition].size++;
    return EXIT_SUCCESS;
 }
+
+int findScope ( STACK *stack){
+   int num;
+   num=stack->size-1;
+   while (stack->hashTables[num]->isFunction!=1)
+      num--;
+   return num;
+   }
+
+char * searchHash(char * variable, STACK *stack){
+   int scopeMax=findScope(stack);
+   int tableIndex=stack->size-1;
+   char *temp;
+   if (temp=searchNodes(stack->hashTables[tableIndex],variable)!=NULL)
+      return temp;
+   
+   while (tableIndex>scopeMax){
+      if (temp=searchNodes(stack->hashTables[tableIndex])!=NULL)
+         return temp;
+      else
+         tableIndex--;
+   }
+} 
+
+char * searchNodes(hashtable *table,char * var){
+   int i;
+   for (int i=0;i<size;i++){
+      if (strcmp(table->node[i]->type,var)==0){         
+         char * result = malloc(sizeof(strlen(table->node[i]->name)));
+         strcpy(result,table->node[i]->name);
+         return result;
+         }
+      }
+      return NULL;
+}
+   
+
+   int compareArgs(STACK *stack, char *typeofarg,int position,int varType){  
+    int i;
+    hashtable *hash=stack->hashTables[position];
+    NODE *node=hash->node;
+    NODE *help=hash->node;
+    
+    for (i=0;i<hash->node->size;i++){
+        if(strcmp(node->type,typeofarg)==0 && node->varType==varType){
+            while(strcmp(help->name,node->name)!=0){
+                if(help->isclosed==0 && help->isarg==1)
+                    return 2;
+                    help=help->next;
+            }
+            node->isclosed=1;
+            return 1;
+        }
+         node=node->next;
+    }
+    return 0;
+}
+           
+         
+         
+   
+
    
 
 
