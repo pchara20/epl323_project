@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-enum var_type {
+enum  var_type{
     TABLE,
     VARIABLE  
 };
 
 typedef struct node{
     char name[50];
-    char* type;  
-    enum var_type varType;        
-    struct node* next;
+    char type[50];  
+    enum var_type varType;    
     int lineNumber;
     int parentPosition;
 } NODE;
@@ -19,7 +18,7 @@ typedef struct hashtable{
     int isFunction;
     char namefunction[50];
     char typefunction[50]; 
-    NODE * node;
+    NODE node[100];
     int size;
     int countparamfunc;    
 }hashtable;
@@ -28,6 +27,11 @@ typedef struct {
   hashtable hashTables[100];
   int size;
 } STACK;
+
+
+//FUNCTION DECLARATIONS
+void printHashTable(hashtable *hashTable);
+void printNode(NODE *node);
 
 
 // STACK OPERATIONS //
@@ -39,7 +43,7 @@ int initStack(STACK**stack) {
 }
 
 void push(hashtable *newHash, STACK *stack){
-      stack->hashTables[stack->size]=newHash;
+      stack->hashTables[stack->size]=*newHash;
       stack->size++;
 }
 
@@ -47,7 +51,6 @@ void pop(STACK *stack){
    if (stack->size==0)
       printf("Stack is empty\n");
    else{    
-   stack->hashTables[stack->size]=NULL;
    stack->size--;
    }
 }
@@ -56,7 +59,7 @@ void printStack(STACK *stack){
    int i=0;
    for (i=0;i<stack->size;i++){
       printf("Position %d \n",i);
-      printHashTable(stack->hashTables[i]);
+      printHashTable(&stack->hashTables[i]);
    }
 }    
 
@@ -78,15 +81,18 @@ int createHashTable(hashtable ** hashTable, char *name,char *type, int isFunc){
     return EXIT_SUCCESS;
 }
 
-void printHashTable(hashtable hashTable){
+void printHashTable(hashtable *hashTable){
    printf("Name: %s\n",hashTable->namefunction);
    printf("Type: %s\n",hashTable->typefunction);
-   printf("Is function (1 for yes, else no): %s\n",hashTable->isFunction);
-   print("Variables in this hashTable %d\n",hashTable->size);
-   print("Parameters %d\n",hashTable->countparamfunc);
+   printf("Is function (1 for yes, else no): %d\n",hashTable->isFunction);
+   printf("Variables in this hashTable %d\n",hashTable->size);
+   printf("Parameters %d\n",hashTable->countparamfunc);
+   int i;
+   for (i=0;i<hashTable->size;i++)
+      printNode(&hashTable->node[i]);
 }
 
-int isEmpty(hashTable *hashTable){
+int isEmpty(hashtable *hashTable){
    return (hashTable->size==0);   
 }
 
@@ -94,32 +100,33 @@ int isEmpty(hashTable *hashTable){
 
 // NODE OPERATIONS // 
 
-int createNode (NODE **node, char *name,char *type, int hashTablePosition, int lineNumber, var_type varType) {
+int createNode(NODE **node, char *name,char *type, int hashTablePosition, int lineNumber,int varType) {  
   *node = (NODE *)malloc(sizeof(NODE));
   if (*node== NULL) {
     return EXIT_FAILURE;
-  }
-  memset((*node)->name, '\0', sizeof((*node)->name));
-  strcpy((*node)->name,name);
-  memset((*node)->type, '\0', sizeof((*node)->type));
+  }  
+  strcpy((*node)->name,name);   
   strcpy((*node)->type,type);
   (*node)->parentPosition=hashTablePosition;
   (*node)->lineNumber=lineNumber;
-  (*node)->varType=varType;
+  if (varType==1)
+  (*node)->varType=VARIABLE;
+  else
+  (*node)->varType=TABLE;  
   return EXIT_SUCCESS;
 }
 
 void printNode(NODE *node){ 
        printf("name: %s \n", node->name);
        printf("type: %s \n", node->type);
-       printf("whatfunction: %d\n ", node->parentPosition);
+       printf("whatfunction: %d\n", node->parentPosition);
        printf("line number %d\n",node->lineNumber);
-       printf("type %s\n",node->varType);                             
+       printf("type %d\n",node->varType);                             
 }        
 
 int insertNode(NODE* node,STACK *stack){
-   stack->hashTables[node->parentPosition]=node;
-   stack->size++;
+   stack->hashTables[node->parentPosition].node[stack->hashTables[node->parentPosition].size]=(*node);
+   stack->hashTables[node->parentPosition].size++;
    return EXIT_SUCCESS;
 }
    

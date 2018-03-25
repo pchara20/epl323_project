@@ -21,13 +21,15 @@
 	extern int yylineno;
 	extern FILE *yyin;
 	int yydebug = 1;
+	char nodeName[50];
+	STACK *stack=NULL;	
 	
 	#define YYDEBUG_LEXER_TEXT yytext
 
 	void yyerror(const char *s);
 %}
 
-%expect 2
+%expect 4
 
 %union {	char *word;	}
 %union {	char *character; }
@@ -99,23 +101,30 @@
 	var_declaration : type_specifier ID SEMICOLON
         {
             if (stack == NULL) {
-                if ((initStack(&stack) != EXIT_SUCCESS){
+               printf("to stack en ofkero\n");
+                if ((initStack(&stack) != EXIT_SUCCESS)){
                     fprintf(stderr, "Stack initialization failed\n!");
                     exit(-1);
-                } else {
+                } else {                
                     hashtable *globalHashtable = NULL;
                     if (createHashTable(&globalHashtable, "global", "void", -1) != EXIT_SUCCESS){
                         fprintf(stderr, "Global hashtable initialization failed\n!");
                     } else {
                         push(globalHashtable, stack);
-                    }
+                        printf("esira to hashtable mesa sto stack\n");
+                        printStack(stack);
+                        printf("printStack ended\n");
+                      }
                 }
             }
-            NODE *hashtableNode = NULL;
-            if (createNode(&hashtableNode, nodeName, $1, stack->hashtable[stack->size-1], yylineno, VARIABLE) != EXIT_SUCCESS) {
-                fprintf(stderr, "Node initialization failed\n!");
+            NODE *hashtableNode = NULL;         
+           
+            if ((createNode(&hashtableNode, nodeName, $1, (stack->size)-1, yylineno, 1) != EXIT_SUCCESS)) {
+                fprintf(stderr, "Node initialization failed!\n");
             } else {
+               printf("edimiourgisa node\n");
                 insertNode(hashtableNode, stack);
+                printStack(stack);
             }
         }
 		| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON
@@ -183,11 +192,11 @@
       | WHILE LEFT_PAREN expression error statement  {yyerrok;};
 		;
 		
-	for_stmt : FOR {exec_for();} LEFT_PAREN expression SEMICOLON expression SEMICOLON expression RIGHT_PAREN      statement {} 
-	   | FOR {exec_for();} error expression SEMICOLON expression SEMICOLON expression SEMICOLON statement    {yyerrok;}
-      | FOR {exec_for();} LEFT_PAREN expression error expression SEMICOLON expression RIGHT_PAREN statement    {yyerrok;}
-      | FOR {exec_for();} LEFT_PAREN expression SEMICOLON expression error expression RIGHT_PAREN statement    {yyerrok;}  
-      | FOR {exec_for();} LEFT_PAREN expression SEMICOLON expression SEMICOLON expression error statement    {yyerrok;};
+	for_stmt : FOR LEFT_PAREN expression SEMICOLON expression SEMICOLON expression RIGHT_PAREN      statement {} 
+	   | FOR  error expression SEMICOLON expression SEMICOLON expression SEMICOLON statement    {yyerrok;}
+      | FOR  LEFT_PAREN expression error expression SEMICOLON expression RIGHT_PAREN statement    {yyerrok;}
+      | FOR  LEFT_PAREN expression SEMICOLON expression error expression RIGHT_PAREN statement    {yyerrok;}  
+      | FOR  LEFT_PAREN expression SEMICOLON expression SEMICOLON expression error statement    {yyerrok;};
 
 	return_stmt : RETURN SEMICOLON			{}
 		| RETURN expression SEMICOLON		{}
@@ -266,12 +275,11 @@ int main(int argc, char *argv[]){
 	return 1;
 }
 
-void exec_for(){
-             hashtable * hash;
-             ht_create(&hash,"for","null",0);
-             scope++;
-             push(hash,stack); 
-             }
+//void exec_for(){
+ //            hashtable * hash;
+   //          ht_create(&hash,"for","null",0);             
+     //        push(hash,stack); 
+       //      }
 
 void yyerror(const char *s){
 
