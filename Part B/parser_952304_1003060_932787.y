@@ -14,6 +14,7 @@
 	#include <stdlib.h>
 	#include <math.h>
 	#include <string.h>
+	#include "symboltable.h"
 
 	extern char *yytext;
 	extern int yylex();
@@ -29,7 +30,7 @@
 %expect 2
 
 %union {	char *word;	}
-%union {	char *character;	}
+%union {	char *character; }
 
 %start program
 
@@ -75,7 +76,7 @@
 %type <character> expression_stmt selection_stmt iteration_stmt return_stmt
 %type <character> expression var simple_expression relop additive_expression
 %type <character> addop term mulop factor args arg_list for_stmt
-%type <word> error call for
+%type <word> error call
 
 %nonassoc "if"
 %nonassoc ELSE
@@ -95,8 +96,32 @@
 		| fun_declaration						{}
 	;
 
-	var_declaration : type_specifier ID SEMICOLON 						{}
-		| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON	{}
+	var_declaration : type_specifier ID SEMICOLON
+        {
+            if (stack == NULL) {
+                if ((initStack(&stack) != EXIT_SUCCESS){
+                    fprintf(stderr, "Stack initialization failed\n!");
+                    exit(-1);
+                } else {
+                    hashtable *globalHashtable = NULL;
+                    if (createHashTable(&globalHashtable, "global", "void", -1) != EXIT_SUCCESS){
+                        fprintf(stderr, "Global hashtable initialization failed\n!");
+                    } else {
+                        push(globalHashtable, stack);
+                    }
+                }
+            }
+            NODE *hashtableNode = NULL;
+            if (createNode(&hashtableNode, nodeName, $1, stack->hashtable[stack->size-1], yylineno, VARIABLE) != EXIT_SUCCESS) {
+                fprintf(stderr, "Node initialization failed\n!");
+            } else {
+                insertNode(hashtableNode, stack);
+            }
+        }
+		| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON
+            {
+                
+            }
 		| type_specifier error											{yyerrok; yyclearin;}
 	;
 
