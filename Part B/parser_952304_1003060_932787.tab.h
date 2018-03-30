@@ -45,40 +45,25 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    PLUS = 258,
-    MINUS = 259,
-    TIMES = 260,
-    DIVISION = 261,
-    LT = 262,
-    LTEQ = 263,
-    GT = 264,
-    GTEQ = 265,
-    EQUAL = 266,
-    NEQ = 267,
-    ASSIGN = 268,
-    SEMICOLON = 269,
-    COMMA = 270,
-    LEFT_PAREN = 271,
-    RIGHT_PAREN = 272,
-    LEFT_BRACKET = 273,
-    RIGHT_BRACKET = 274,
-    LEFT_BRACE = 275,
-    RIGHT_BRACE = 276,
-    IF = 277,
-    ELSE = 278,
-    RETURN = 279,
-    VOID = 280,
-    INT = 281,
-    FLOAT = 282,
-    FLOAT_NUM = 283,
-    WHILE = 284,
-    ID = 285,
-    NUM = 286,
-    PLUSEQ = 287,
-    MINUSEQ = 288,
-    INC = 289,
-    DEC = 290,
-    FOR = 291
+    LTEQ = 258,
+    GTEQ = 259,
+    EQUAL = 260,
+    NEQ = 261,
+    IF = 262,
+    ELSE = 263,
+    RETURN = 264,
+    VOID = 265,
+    INT = 266,
+    FLOAT = 267,
+    FLOAT_NUM = 268,
+    WHILE = 269,
+    ID = 270,
+    NUM = 271,
+    PLUSEQ = 272,
+    MINUSEQ = 273,
+    INC = 274,
+    DEC = 275,
+    FOR = 276
   };
 #endif
 
@@ -87,12 +72,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 34 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
+#line 42 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
 	char *word;	
-#line 35 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
+#line 43 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
 	char *character; 
 
-#line 96 "parser_952304_1003060_932787.tab.h" /* yacc.c:1909  */
+#line 81 "parser_952304_1003060_932787.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

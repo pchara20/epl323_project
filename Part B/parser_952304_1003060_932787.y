@@ -23,9 +23,13 @@
 	int yydebug = 1;
 	char nodeName[50];
 	char nodeType[50];
+	char typeleft[10];
+	char typeright[10];
+	char typeofarg[10];
 	STACK *stack = NULL;
+	STACK *helpstack=NULL;
 	int countArgList = 0;
-	int isFunction = -1;
+	int positionInHashtable=-1;
 
 #define YYDEBUG_LEXER_TEXT yytext
 
@@ -40,25 +44,25 @@
 
 %start program
 
-%token PLUS
-%token MINUS
-%token TIMES
-%token DIVISION
-%token LT
+%token '+'
+%token '-'
+%token '*'
+%token '/'
+%token '<'
 %token LTEQ
-%token GT
+%token '>'
 %token GTEQ
 %token EQUAL
 %token NEQ
-%token ASSIGN
-%token SEMICOLON
-%token COMMA
-%token LEFT_PAREN
-%token RIGHT_PAREN
-%token LEFT_BRACKET
-%token RIGHT_BRACKET
-%token LEFT_BRACE
-%token RIGHT_BRACE
+%token '='
+%token ';'
+%token ','
+%token '('
+%token ')'
+%token '['
+%token ']'
+%token '{'
+%token '}'
 %token IF
 %token ELSE
 %token RETURN
@@ -81,14 +85,14 @@
 %type <character> compound_stmt local_declarations statement_list statement
 %type <character> expression_stmt selection_stmt iteration_stmt return_stmt
 %type <character> expression var simple_expression relop additive_expression
-%type <character> addop term mulop factor args arg_list for_stmt
-%type <word> error call
+%type <character> addop term mulop factor args arg_list for_stmt 
+%type <word> error call id2 whileloop forloop if else
 
 %nonassoc "if"
 %nonassoc ELSE
 
-%left PLUS MINUS
-%left TIMES DIVISION
+%left '+' '-'
+%left '*' '/'
 
 %%
 program : declaration_list	{}
@@ -98,71 +102,65 @@ declaration_list : declaration_list declaration		{}
 | declaration									{}
 ;
 
-declaration : var_declaration 				{}
-| fun_declaration						{}
+declaration : var_declaration 			//	{printf("DAAAAAAA\n");}
+| fun_declaration							//{printf("OOOOOOOOOOO\n");}
 ;
 
-var_declaration : type_specifier ID SEMICOLON
-{
+var_declaration : type_specifier id2 ';'{
+	//if stack is empty create it and then create/push a hashtable called global
 	if (stack == NULL) {
-		printf("to stack en ofkero\n");
+		//printf("to stack en ofkero\n");
 		if ((initStack(&stack) != EXIT_SUCCESS)) {
 			fprintf(stderr, "Stack initialization failed\n!");
 			exit(-1);
-		} else {
-			hashtable *globalHashtable = NULL;
-			if (createHashTable(&globalHashtable, "global", "void", -1) != EXIT_SUCCESS) {
-				fprintf(stderr, "Global hashtable initialization failed\n!");
-			} else {
-				push(globalHashtable, stack);
-				//printf("esira to hashtable mesa sto stack\n");
-				//printStack(stack);
-				//printf("printStackended\n");
-			}
 		}
+		hashtable *globalHashtable = NULL;
+		if (createHashTable(&globalHashtable, "global", "void", -1) != EXIT_SUCCESS) {
+			fprintf(stderr, "Global hashtable initialization failed\n!");
+			exit(-1);
+		}
+		push(globalHashtable, stack);
+		//printf("esira to hashtable mesa sto stack\n");
+		//printStack(stack);
+		//printf("printStackended\n");
 	}
-	NODE *hashtableNode = NULL;
-
+	//create node and insert to stack in top hashtable
+	NODE *hashtableNode= NULL;
 	if ((createNode(&hashtableNode, nodeName, $1, (stack->size) - 1, yylineno, 1) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
-	} else {
-		//printf("edimiourgisa node\n");
-		insertNode(hashtableNode, stack);
-		//printStack(stack);
+		exit(-1);
+	}	
+	insertNode(hashtableNode, stack);	
+	//printStack(stack);	
 	}
-}
-| type_specifier ID LEFT_BRACKET NUM RIGHT_BRACKET SEMICOLON
-{
+| type_specifier id2 '[' NUM ']' ';' {
 	NODE *tableNode = NULL;
-	if ((createNode(&hashtableNode, nodeName, $1, (stack->size) - 1, yylineno, 0) != EXIT_SUCCESS)) {
+	if ((createNode(&tableNode, nodeName, $1, (stack->size) - 1, yylineno, 0) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
-	} else {
-		//printf("edimiourgisa node\n");
-		insertNode(tableNode, stack);
-		//printStack(stack);
-	}
-}
-| type_specifier error
-{
-	yyerrok; yyclearin;
-}
+		exit(-1);
+	} 
+	//printf("edimiourgisa node\n");
+	insertNode(tableNode, stack);
+	//printStack(stack);	
+   }
+| type_specifier error {printf("pppppppppp\n"); yyerrok; yyclearin; }
 ;
 
 type_specifier : INT
 {
-	bzero(nodeType, 50, 0);
+	bzero(nodeType, 50);
 	strcpy(nodeType, yytext);
 	$$ = "int";
 }
 | VOID
 {
-	bzero(nodeType, 50, 0);
+	bzero(nodeType, 50);
 	strcpy(nodeType, yytext);
 	$$ = "void";
 }
 | FLOAT
 {
-	bzero(nodeType, 50, 0);
+	bzero(nodeType, 50);
 	strcpy(nodeType, yytext);
 	$$ = "float";
 }
@@ -172,96 +170,66 @@ type_specifier : INT
 }
 ;
 
-fun_declaration : type_specifier ID LEFT_PAREN
-{
-	if (stack != NULL) {
-		hashtable *hashTable = NULL;
-		if (createHashTable(&hashTable, nodeName, nodeType, 1) != EXIT_SUCCESS) {
-			fprintf(stderr, "Global hashtable initialization failed\n!");
-		} else {
-			push(hashTable, stack);
-			//printf("esira to hashtable mesa sto stack\n");
-			//printStack(stack);
-			//printf("printStackended\n");
-		}
-	} else {
-		if ((initStack(&stack) != EXIT_SUCCESS)) {
+fun_declaration : type_specifier id2 '(' {   
+	if (stack == NULL) {
+	   if ((initStack(&stack) != EXIT_SUCCESS)) {
 			fprintf(stderr, "Stack initialization failed\n!");
 			exit(-1);
-		} else {
-			hashtable *hashTable = NULL;
-			if (createHashTable(&hashTable, nodeName, nodeType, 1) != EXIT_SUCCESS) {
-				fprintf(stderr, "Global hashtable initialization failed\n!");
-			} else {
-				push(hashTable, stack);
-				//printf("esira to hashtable mesa sto stack\n");
-				//printStack(stack);
-				//printf("printStackended\n");
-			}
 		}
 	}
-} params RIGHT_PAREN /*might need something here*/ compound_stmt		{}
-| type_specifier ID error params RIGHT_PAREN compound_stmt
-{
-	yyerrok;
-}
-| type_specifier ID LEFT_PAREN params error compound_stmt
-{
-	yyerrok;
-}
+	hashtable *hashTable = NULL;
+	if (createHashTable(&hashTable, nodeName, nodeType, 1) != EXIT_SUCCESS) {
+		fprintf(stderr, "hashtable initialization failed\n!");
+	} 
+	push(hashTable, stack);
+	//printStack(stack);
+   }	params ')' compound_stmt		{}
+//| type_specifier ID error params ')' compound_stmt {yyerrok;}
+//| type_specifier ID '(' params error compound_stmt {yyerrok;}
 ;
 
 params : param_list	{}
 | VOID			{}
 ;
 
-param_list : param_list COMMA param
-{
-	stack->hashTables[(stack->size) - 1]->countparamfunc++;
-}
-| param
-{
-	stack->hashTables[(stack->size) - 1]->countparamfunc++;
-}
+param_list : param_list ',' param {
+	stack->hashTables[(stack->size) - 1].countparamfunc++;
+   }
+| param {
+	stack->hashTables[(stack->size) - 1].countparamfunc++;
+   }
 ;
 
-param : type_specifier ID
-{
+param : type_specifier id2 {
 	NODE *node = NULL;
 	if ((createNode(&node, nodeName, $1, (stack->size) - 1, yylineno, 1) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
-	} else {
-		//printf("edimiourgisa node\n");
-		insertNode(node, stack);
-		//printStack(stack);
+		exit(-1);
+	} 
+	insertNode(node, stack);		
 	}
-}
-| type_specifier ID LEFT_BRACKET RIGHT_BRACKET
-{
+| type_specifier id2 '[' ']' {
 	NODE *node = NULL;
 	if ((createNode(&node, nodeName, $1, (stack->size) - 1, yylineno, 0) != EXIT_SUCCESS)) {
-		fprintf(stderr, "Node initialization failed!\n");
-	} else {
-		//printf("edimiourgisa node\n");
-		insertNode(node, stack);
-		//printStack(stack);
+		fprintf(stderr, "Node initialization failed!\n");	
 	}
-}
-| error
-{
-	yyerrok; yyclearin;
-}
+	insertNode(node, stack);			
+   }
+| error { yyerrok; yyclearin; }
 ;
 
-compound_stmt : LEFT_BRACE local_declarations statement_list RIGHT_BRACE 
+compound_stmt : '{' local_declarations statement_list '}' 
 {
-   hashtable *hashTable = NULL;
-   if (stack->hashTables[stack->size-1]->isFunction == 1){
-      createHashTable(hashTable, stack->hashTables[stack->size-1]->namefunction,stack->hashTables[stack->size-1]->typefunction, stack->hashTables[stack->size-1]->isFunction);
-      push(hashTable, stack);
-   }
-}
-;
+   if (helpstack==NULL)
+      if ((initStack(&helpstack) != EXIT_SUCCESS)) {
+			fprintf(stderr, "Stack initialization failed\n!");
+			exit(-1);
+		}
+	hashtable *hashTable = NULL;
+	hashTable=pop(stack);
+	if (hashTable->isFunction==1)
+	   push(hashTable,helpstack);
+};
 
 local_declarations : local_declarations var_declaration 	{}
 | /*epsilon*/ {}
@@ -276,161 +244,191 @@ statement : expression_stmt		{}
 | selection_stmt			{}
 | iteration_stmt			{}
 | return_stmt				{}
-| error	SEMICOLON				{yyerrok; yyclearin;}
+| error	';'				{yyerrok; yyclearin;}
 ;
 
-expression_stmt : expression SEMICOLON		{}
-| SEMICOLON								{}
+expression_stmt : expression ';'		{}
+| ';'								{}
 | error									{yyclearin;}
 ;
 
-selection_stmt : if LEFT_PAREN expression RIGHT_PAREN statement %prec "if"			{}
-| if LEFT_PAREN expression RIGHT_PAREN statement %prec "if" else statement		{}
+selection_stmt : if '(' expression ')' statement %prec "if"			{}
+| if '(' expression ')' statement %prec "if" else statement		{}
 		;
 
 if : IF {
-hashTable *hashTable = NULL;
-if (createHashTable(&hashTable, "if", "null", 0) != EXIT_SUCCESS) {
-		fprintf(stderr, "Hashtable initialization failed!\n");
-	} else {
-		push(hashTable, stack);
-	}
-}
+            hashtable *ifHashtable = NULL;
+            if (createHashTable(&ifHashtable, "if", "null", 0) != EXIT_SUCCESS) {
+		        fprintf(stderr, "IF Hashtable initialization failed!\n");
+	        } else {
+		        push(ifHashtable, stack);
+	        }
+    }
 ;
-
 else : ELSE {
-	hashTable *hashTable = NULL;
-	if (createHashTable(&hashTable, "else", "null", 0) != EXIT_SUCCESS) {
-		fprintf(stderr, "Hashtable initialization failed!\n");
-	} else {
-		push(hashTable, stack);
-	}
-}
+	            hashtable *elseHashtable = NULL;
+	            if (createHashTable(&elseHashtable, "else", "null", 0) != EXIT_SUCCESS) {
+		            fprintf(stderr, "ELSE Hashtable initialization failed!\n");
+	            } else {
+		            push(elseHashtable, stack);
+	            }
+    }
 ;
-iteration_stmt : whileloop LEFT_PAREN expression RIGHT_PAREN statement	{}
+iteration_stmt : whileloop '(' expression ')' statement	{}
 | for_stmt {}
-| whileloop error expression RIGHT_PAREN statement  {yyerrok;}
-| whileloop LEFT_PAREN expression error statement  {yyerrok;};
+| whileloop error expression ')' statement  {yyerrok;}
+| whileloop '(' expression error statement  {yyerrok;}
 ;
 
-whileloop : WHILE {
-	hashTable *hashTable = NULL;
-	if (createHashTable(&hashTable, "while", "null", 0) != EXIT_SUCCESS) {
-		fprintf(stderr, "Hashtable initialization failed!\n");
-	} else {
-		push(hashTable, stack);
-	}
-}
+for_stmt : forloop '(' expression ';' expression ';' expression ')' statement {}
+| forloop error expression ';' expression ';' expression ')' statement    {yyerrok;}
+| forloop '(' expression error expression ';' expression ')' statement    {yyerrok;}
+| forloop '(' expression ';' expression error expression ')' statement    {yyerrok;}
+| forloop '(' expression ';' expression ';' expression error statement    {yyerrok;}
 ;
-
-for_stmt : forloop LEFT_PAREN expression SEMICOLON expression SEMICOLON expression RIGHT_PAREN      statement {}
-| forloop  error expression SEMICOLON expression SEMICOLON expression SEMICOLON statement    {yyerrok;}
-| forloop  LEFT_PAREN expression error expression SEMICOLON expression RIGHT_PAREN statement    {yyerrok;}
-| forloop  LEFT_PAREN expression SEMICOLON expression error expression RIGHT_PAREN statement    {yyerrok;}
-| forloop  LEFT_PAREN expression SEMICOLON expression SEMICOLON expression error statement    {yyerrok;};
 
 forloop : FOR {
-	hashTable *hashTable = NULL;
-	if (createHashTable(&hashTable, "for", "null", 0) != EXIT_SUCCESS) {
-		fprintf(stderr, "Hashtable initialization failed!\n");
-	} else {
-		push(hashTable, stack);
-	}
-}
+               printf("ime mes to forloop:for\n");
+	            hashtable *forHashtable = NULL;
+	            if (createHashTable(&forHashtable, "for", "null", 0) != EXIT_SUCCESS) {
+		            fprintf(stderr, "FOR Hashtable initialization failed!\n");
+	            } else {
+		            push(forHashtable, stack);
+		            //printStack(stack);
+	            }
+    }
 ;
 
-return_stmt : RETURN SEMICOLON			{}
-| RETURN expression SEMICOLON		{}
+whileloop: WHILE {  
+               hashtable *whileHashtable = NULL;
+	            if (createHashTable(&whileHashtable, "while", "null", 0) != EXIT_SUCCESS) {
+		            fprintf(stderr, "WHILE Hashtable initialization failed!\n");
+	            } else {
+		            push(whileHashtable, stack);
+	            }
+    }
+; 
+
+
+return_stmt : RETURN ';'    {}
+| RETURN expression ';'     {}
 ;
 
-expression : var ASSIGN expression 	
-{
+expression : var '=' expression 
+{  
+  // printf("ime sto var=expression\n");
+  // printf("to typeleft ine %s\n to typeright ine %s\n",typeleft,typeright);
 	if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
 		if (strcmp(typeleft, typeright) != 0){
 			printf("Type error at line: %d\n", yylineno);
 		}
+		else ;//printf("en pompa\n");
 	}
 }
-| var error expression               {yyerrok;}
-| simple_expression				{
-                        if(isfunction!=-1){ 
-                              if(compareArgs(stack,typeofarg,isfunction,istable)!=1)
-                                    printf("ERROR, wrong type of argument in line %d\n",yylineno); }
-                                                 }
-| var INC                             {}
-| var DEC                         {}
-| var PLUSEQ NUM                {}
-| var MINUSEQ NUM                {}
+| var error expression      {yyerrok;}
+| simple_expression			{ printf("simple\n\n");
+                                /*if(positionInHashtable != -1) { 
+                                    if(compareArgs(stack, typeofarg, positionInHashtable, istable) != 1)
+                                        printf("Wrong type of argument at line: %d\n",yylineno); 
+                                }*/
+                            }
+| var INC                   {}
+| var DEC                   {}
+| var PLUSEQ NUM            {}
+| var MINUSEQ NUM           {}
 ;
 
-var : ID 										
-{
-	$$ = $1;
-	typeleft = searchHash($1, stack);
-
-	if (strcmp(typeleft, "NULL")){
-		printf("Type error of %s at line: %d\n", $1, yylineno);
-	}
-}
-| ID LEFT_BRACKET expression RIGHT_BRACKET	{}
-| ID error expression RIGHT_BRACKET                   {yyerrok;}
-| ID LEFT_BRACKET expression error                   {yyerrok;};
+var : id2 {
+	        $$ = $1;	        	        
+	        strcpy(typeleft,searchHash($1, stack));
+	       // printf("ime sto var:id2 kai to typeleft ine: %s\n",typeleft);
+	        if (strcmp(typeleft, "NULL") ==  0){
+		         printf("Type error of %s at line: %d\n", $1, yylineno);
+	        }
+    }
+| id2 '[' expression ']' {
+	                        $$ = $1;
+	                        strcpy(typeleft,searchHash($1, stack));
+	                        if (strcmp(typeleft, "NULL") ==  0){
+		                       printf("Type error of %s at line: %d\n", $1, yylineno);
+	                        }
+    }
+| id2 error expression ']'               {yyerrok;}
+| id2 '[' expression error               {yyerrok;};
 ;
 
-simple_expression : additive_expression relop additive_expression	{}
-| additive_expression											{}
+simple_expression : additive_expression         {}
+| additive_expression relop additive_expression	{
+           if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
+                                                        if (strcmp(typeleft, typeright) != 0) {
+                                                            printf("Wrong type of argument at line: %d\n",yylineno); 
+                                                        }
+                                                    }
+    }
 ;
 
-relop : LTEQ		{}
-| LT			{}
-| GT			{}
+relop : LTEQ	{}
+| '<'			{}
+| '>'			{}
 | GTEQ			{}
 | EQUAL			{}
 | NEQ			{}
 ;
 
 additive_expression : additive_expression addop term 	{}
-| term												{}
+| term												    {}
 ;
 
-addop : PLUS		{}
-| MINUS			{}
+addop : '+'		{}
+| '-'			{}
 ;
 
-term : term mulop factor	{}
-| factor				{}
+term : term mulop factor	{
+                                if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
+                                    if (strcmp(typeleft, typeright) != 0) {
+                                        printf("Wrong type of argument at line: %d\n",yylineno); 
+                                    }
+                                }
+    }
+| factor	{$$ = $1;}
 ;
 
-mulop : TIMES		{}
-| DIVISION		{}
+mulop : '*' 	{}
+| '/'	    	{}
 ;
 
-factor : LEFT_PAREN expression RIGHT_PAREN	{}
+factor : '(' expression ')'	{}
 | var									{}
 | call									{}
 | NUM									
 {
-	typeright = "int";
+	strcpy(typeright,"int");
+	if (positionInHashtable != -1) {
+	    strcpy(typeofarg,"int");
+	}
 }
 | FLOAT_NUM                   
 {
-	typeright = "float";
+	strcpy(typeright,"float");
+	if (positionInHashtable != -1) {
+	    strcpy(typeofarg,"float");
+	}
 }
 ;
 
-call : ID 
+call : id2 
 {
 	positionInHashtable = -1;
-	positionInHashtable = searchInStack();
+	positionInHashtable = searchPosition($1,helpstack);
 	if (positionInHashtable == -1){
 		printf("Function '%s' not found at line: %d!\n", $1, yylineno);
 	}
 }
-LEFT_PAREN args RIGHT_PAREN	
+'(' args ')'	
 {
-	hashtable *hashTable = stack->hashTables[(stack->size)-1];
+	hashtable *hashTable = &stack->hashTables[positionInHashtable];
 	
-	if (hashTable[positionInHashtable]->countparamfunc != countArgList){
+	if (hashTable[positionInHashtable].countparamfunc != countArgList){
 		printf("Arguments do not match function's arguments at line: %d!\n", yylineno);
 	}
 	countArgList = 0;
@@ -439,11 +437,21 @@ LEFT_PAREN args RIGHT_PAREN
 }
 ;
 
+id2 : ID {
+            strcpy(nodeName, yytext);
+           // printf("ime sto id2:id kai to nodeName ine: %s\n",nodeName);
+            $$ = nodeName;
+            if (positionInHashtable != -1) {   
+               //printf("empike telika");            
+                strcpy(typeofarg,searchHash(nodeName, stack));  
+            }
+    };
+
 args : arg_list 	{}
-| /*epsilon*/	{}
+| /*epsilon*/	    {}
 ;
 
-arg_list : arg_list COMMA expression
+arg_list : arg_list ',' expression
 {
 	countArgList++;
 }
@@ -474,3 +482,4 @@ void yyerror(const char *s) {
 
 	printf("Found error line: %d : %s : %s\n", yylineno, s, yytext);
 }
+
