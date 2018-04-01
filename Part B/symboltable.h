@@ -135,6 +135,13 @@ void printNode(NODE *node){
 }        
 
 int insertNode(NODE* node,STACK *stack){
+   int i = 0;
+   
+   for (i = 0; i < stack->hashTables[node->parentPosition].size; i++){
+      if (strcmp(node->name, stack->hashTables[node->parentPosition].node[i].name) == 0){
+         return EXIT_FAILURE;
+      }
+   }
    stack->hashTables[node->parentPosition].node[stack->hashTables[node->parentPosition].size]=(*node);
    stack->hashTables[node->parentPosition].size++;
    return EXIT_SUCCESS;

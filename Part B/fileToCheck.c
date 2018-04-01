@@ -34,7 +34,7 @@ void main(void) {
   int i;
   int y;
   float zz;
-  
+  int a[25];
   zz = i+y;
   i=5.0; 
   x = 3;
@@ -54,7 +54,7 @@ void main(void) {
       z++;
       y = foo(x,x,x,x,aaaa,d,b,c,x);
       foo();
-      foo(x,aaaa,i,y);
+      foo(x,aaaa,i,2);
    }
   }
   goo(1,2,3);

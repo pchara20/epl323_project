@@ -126,17 +126,21 @@ var_declaration : type_specifier id2 ';'{
 	if ((createNode(&hashtableNode, nodeName, $1, (stack->size) - 1, yylineno, 1) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
 		exit(-1);
-	}	
-	insertNode(hashtableNode, stack);	
 	}
+	if (insertNode(hashtableNode, stack) == EXIT_FAILURE){
+      printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable '\x1b[33m%s\x1b[0m' already defined!\n", yylineno, nodeName);
+	}	
+}
 | type_specifier id2 '[' NUM ']' ';' {
 	NODE *tableNode = NULL;
 	if ((createNode(&tableNode, nodeName, $1, (stack->size) - 1, yylineno, 0) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
 		exit(-1);
 	} 	
-	insertNode(tableNode, stack);	
-   }
+   if (insertNode(tableNode, stack) == EXIT_FAILURE){
+      printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Array '\x1b[33m%s\x1b[0m' already defined!\n", yylineno, nodeName);
+	}
+}
 | type_specifier error {yyerrok; yyclearin; }
 ;
 
@@ -310,12 +314,12 @@ expression : var {strcpy(typeoftemp,typeleft); strcpy(typeleft,"NULL");} '=' exp
 {    
 	if ((strcmp(typeoftemp, "NULL") != 0) && (strcmp(typeleft, "NULL")) != 0){
 	   if (strcmp(typeoftemp, typeleft) != 0){		 
-			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeoftemp, typeleft);
+			printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable is of type: '\x1b[32m%s\x1b[0m' but '\x1b[33m%s\x1b[0m' was given!\n", yylineno, typeoftemp, typeleft);
 		}
 	}
 	else if ((strcmp(typeoftemp, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
 	   if (strcmp(typeoftemp,typeright)!=0)
-		   printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeoftemp, typeright);
+		   printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable is of type: '\x1b[32m%s\x1b[0m' but '\x1b[33m%s\x1b[0m' was given!\n", yylineno, typeoftemp, typeright);
    }		
 	}
 | var error expression      {yyerrok;}
@@ -330,14 +334,14 @@ var : id2 {
 	        $$ = $1;	             	        
 	        strcpy(typeleft,searchHash($1, stack));
 	        if (strcmp(typeleft, "NULL") ==  0){
-		         printf("ERROR (line: %d): Variable '%s' used but not declared!\n", yylineno, $1);
+		         printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable '\x1b[33m%s\x1b[0m' used but not declared!\n", yylineno, $1);
 	        }
 }
 | id2 '[' expression ']' {
 	                        $$ = $1;
 	                        strcpy(typeleft,searchHash($1, stack));
 	                        if (strcmp(typeleft, "NULL") ==  0){
-		                       printf("ERROR (line: %d): Array '%s' used but not declared!\n", yylineno, $1);
+		                       printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Array '\x1b[33m%s\x1b[0m' used but not declared!\n", yylineno, $1);
 	                        }
     }
 | id2 error expression ']'               {yyerrok;}
@@ -348,7 +352,7 @@ simple_expression : additive_expression         {}
 | additive_expression relop additive_expression	{
              if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
                 if (strcmp(typeleft, typeright) != 0) {
-			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeleft, typeright);
+			printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable is of type: '\x1b[32m%s\x1b[0m' but '\x1b[33m%s\x1b[0m' was given!\n", yylineno, typeleft, typeright);
                                                         }
                                                     }
 }
@@ -373,7 +377,7 @@ addop : '+'		{}
 term : term mulop factor	{
                                 if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
                                     if (strcmp(typeleft, typeright) != 0) {
-			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeleft, typeright);
+			printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Variable is of type: '\x1b[32m%s\x1b[0m' but '\x1b[33m%s\x1b[0m' was given!\n", yylineno, typeleft, typeright);
                                     }
                                 }
     }
@@ -408,7 +412,7 @@ call : id2
 	positionInHashtable = -1;
 	positionInHashtable = searchPosition($1,helpstack);	
 	if (positionInHashtable == -1){
-	   printf("ERROR (line: %d): Function '%s' used but not declared!\n", yylineno, $1);
+	   printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Function '\x1b[33m%s\x1b[0m' used but not declared!\n", yylineno, $1);
 	}
 }
 '(' args ')'	
@@ -416,7 +420,7 @@ call : id2
    if (positionInHashtable != -1){
 	   hashtable *hashTable = &helpstack->hashTables[positionInHashtable];	
 	   if (hashTable[positionInHashtable].countparamfunc != countArgList){
-		   printf("ERROR (line: %d): Function '%s' called with wrong number of parameters\n", yylineno, hashTable->namefunction);
+		   printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): Function '\x1b[33m%s\x1b[0m' called with wrong number of parameters\n", yylineno, hashTable->namefunction);
 	   }
    }
 	countArgList = 0;
@@ -455,13 +459,15 @@ int main(int argc, char *argv[]) {
 		return -1;
 	} else {
 		yyin = fopen(argv[1], "r");
+	   printf("\n");
 		yyparse();
 	}
+	printf("\n");
 	return 1;
 }
 
 void yyerror(const char *s) {
 
-	printf("ERROR (line: %d): %s : %s\n", yylineno, s, yytext);
+	printf("\x1b[31mERROR\x1b[0m (line: \x1b[36m%d\x1b[0m): \x1b[32m%s\x1b[0m : \x1b[33m%s\x1b[0m\n", yylineno, s, yytext);
 }
 
