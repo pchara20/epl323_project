@@ -413,10 +413,12 @@ call : id2
 }
 '(' args ')'	
 {
-	hashtable *hashTable = &helpstack->hashTables[positionInHashtable];	
-	if (hashTable[positionInHashtable].countparamfunc != countArgList){
-		printf("ERROR (line: %d): Function '%s' called with wrong number of parameters\n", yylineno, $1);
-	}
+   if (positionInHashtable != -1){
+	   hashtable *hashTable = &helpstack->hashTables[positionInHashtable];	
+	   if (hashTable[positionInHashtable].countparamfunc != countArgList){
+		   printf("ERROR (line: %d): Function '%s' called with wrong number of parameters\n", yylineno, hashTable->namefunction);
+	   }
+   }
 	countArgList = 0;
 	positionInHashtable = -1;
 
@@ -427,7 +429,6 @@ id2 : ID {
             strcpy(nodeName, yytext);           
             $$ = nodeName;            
             if (positionInHashtable != -1) {                     
-               if (helpstack==NULL) initStack(&helpstack);
                strcpy(typeofarg,searchHash(nodeName, stack));  
             }
           
