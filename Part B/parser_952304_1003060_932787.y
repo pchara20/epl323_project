@@ -25,12 +25,13 @@
 	char nodeType[50];
 	char typeleft[10];
 	char typeright[10];
+	char typeoftemp[10];
 	char typeofarg[10];
 	STACK *stack = NULL;
 	STACK *helpstack=NULL;
 	int countArgList = 0;
 	int positionInHashtable=-1;
-
+   
 #define YYDEBUG_LEXER_TEXT yytext
 
 	void yyerror(const char *s);
@@ -102,14 +103,13 @@ declaration_list : declaration_list declaration		{}
 | declaration									{}
 ;
 
-declaration : var_declaration 			//	{printf("DAAAAAAA\n");}
-| fun_declaration							//{printf("OOOOOOOOOOO\n");}
+declaration : var_declaration 			
+| fun_declaration						
 ;
 
 var_declaration : type_specifier id2 ';'{
 	//if stack is empty create it and then create/push a hashtable called global
-	if (stack == NULL) {
-		//printf("to stack en ofkero\n");
+	if (stack == NULL) {		
 		if ((initStack(&stack) != EXIT_SUCCESS)) {
 			fprintf(stderr, "Stack initialization failed\n!");
 			exit(-1);
@@ -119,10 +119,7 @@ var_declaration : type_specifier id2 ';'{
 			fprintf(stderr, "Global hashtable initialization failed\n!");
 			exit(-1);
 		}
-		push(globalHashtable, stack);
-		//printf("esira to hashtable mesa sto stack\n");
-		//printStack(stack);
-		//printf("printStackended\n");
+		push(globalHashtable, stack);		
 	}
 	//create node and insert to stack in top hashtable
 	NODE *hashtableNode= NULL;
@@ -131,19 +128,16 @@ var_declaration : type_specifier id2 ';'{
 		exit(-1);
 	}	
 	insertNode(hashtableNode, stack);	
-	//printStack(stack);	
 	}
 | type_specifier id2 '[' NUM ']' ';' {
 	NODE *tableNode = NULL;
 	if ((createNode(&tableNode, nodeName, $1, (stack->size) - 1, yylineno, 0) != EXIT_SUCCESS)) {
 		fprintf(stderr, "Node initialization failed!\n");
 		exit(-1);
-	} 
-	//printf("edimiourgisa node\n");
-	insertNode(tableNode, stack);
-	//printStack(stack);	
+	} 	
+	insertNode(tableNode, stack);	
    }
-| type_specifier error {printf("pppppppppp\n"); yyerrok; yyclearin; }
+| type_specifier error {yyerrok; yyclearin; }
 ;
 
 type_specifier : INT
@@ -182,10 +176,10 @@ fun_declaration : type_specifier id2 '(' {
 		fprintf(stderr, "hashtable initialization failed\n!");
 	} 
 	push(hashTable, stack);
-	//printStack(stack);
+	
    }	params ')' compound_stmt		{}
-//| type_specifier ID error params ')' compound_stmt {yyerrok;}
-//| type_specifier ID '(' params error compound_stmt {yyerrok;}
+| type_specifier id2 error params ')' compound_stmt {yyerrok;}
+
 ;
 
 params : param_list	{}
@@ -287,14 +281,12 @@ for_stmt : forloop '(' expression ';' expression ';' expression ')' statement {}
 | forloop '(' expression ';' expression ';' expression error statement    {yyerrok;}
 ;
 
-forloop : FOR {
-               printf("ime mes to forloop:for\n");
+forloop : FOR {             
 	            hashtable *forHashtable = NULL;
 	            if (createHashTable(&forHashtable, "for", "null", 0) != EXIT_SUCCESS) {
 		            fprintf(stderr, "FOR Hashtable initialization failed!\n");
 	            } else {
-		            push(forHashtable, stack);
-		            //printStack(stack);
+		            push(forHashtable, stack);		          
 	            }
     }
 ;
@@ -314,43 +306,38 @@ return_stmt : RETURN ';'    {}
 | RETURN expression ';'     {}
 ;
 
-expression : var '=' expression 
-{  
-  // printf("ime sto var=expression\n");
-  // printf("to typeleft ine %s\n to typeright ine %s\n",typeleft,typeright);
-	if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
-		if (strcmp(typeleft, typeright) != 0){
-			printf("Type error at line: %d\n", yylineno);
+expression : var {strcpy(typeoftemp,typeleft); strcpy(typeleft,"NULL");} '=' expression 
+{    
+	if ((strcmp(typeoftemp, "NULL") != 0) && (strcmp(typeleft, "NULL")) != 0){
+	   if (strcmp(typeoftemp, typeleft) != 0){		 
+			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeoftemp, typeleft);
 		}
-		else ;//printf("en pompa\n");
 	}
-}
+	else if ((strcmp(typeoftemp, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
+	   if (strcmp(typeoftemp,typeright)!=0)
+		   printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeoftemp, typeright);
+   }		
+	}
 | var error expression      {yyerrok;}
-| simple_expression			{ printf("simple\n\n");
-                                /*if(positionInHashtable != -1) { 
-                                    if(compareArgs(stack, typeofarg, positionInHashtable, istable) != 1)
-                                        printf("Wrong type of argument at line: %d\n",yylineno); 
-                                }*/
-                            }
+| simple_expression			{ }
 | var INC                   {}
 | var DEC                   {}
 | var PLUSEQ NUM            {}
 | var MINUSEQ NUM           {}
 ;
 
-var : id2 {
-	        $$ = $1;	        	        
+var : id2 {        
+	        $$ = $1;	             	        
 	        strcpy(typeleft,searchHash($1, stack));
-	       // printf("ime sto var:id2 kai to typeleft ine: %s\n",typeleft);
 	        if (strcmp(typeleft, "NULL") ==  0){
-		         printf("Type error of %s at line: %d\n", $1, yylineno);
+		         printf("ERROR (line: %d): Variable '%s' used but not declared!\n", yylineno, $1);
 	        }
-    }
+}
 | id2 '[' expression ']' {
 	                        $$ = $1;
 	                        strcpy(typeleft,searchHash($1, stack));
 	                        if (strcmp(typeleft, "NULL") ==  0){
-		                       printf("Type error of %s at line: %d\n", $1, yylineno);
+		                       printf("ERROR (line: %d): Array '%s' used but not declared!\n", yylineno, $1);
 	                        }
     }
 | id2 error expression ']'               {yyerrok;}
@@ -359,12 +346,12 @@ var : id2 {
 
 simple_expression : additive_expression         {}
 | additive_expression relop additive_expression	{
-           if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
-                                                        if (strcmp(typeleft, typeright) != 0) {
-                                                            printf("Wrong type of argument at line: %d\n",yylineno); 
+             if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
+                if (strcmp(typeleft, typeright) != 0) {
+			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeleft, typeright);
                                                         }
                                                     }
-    }
+}
 ;
 
 relop : LTEQ	{}
@@ -375,8 +362,8 @@ relop : LTEQ	{}
 | NEQ			{}
 ;
 
-additive_expression : additive_expression addop term 	{}
-| term												    {}
+additive_expression : additive_expression addop term 	
+| term												    { }
 ;
 
 addop : '+'		{}
@@ -386,11 +373,11 @@ addop : '+'		{}
 term : term mulop factor	{
                                 if ((strcmp(typeleft, "NULL") != 0) && (strcmp(typeright, "NULL") != 0)){
                                     if (strcmp(typeleft, typeright) != 0) {
-                                        printf("Wrong type of argument at line: %d\n",yylineno); 
+			printf("ERROR (line: %d): Variable is of type: '%s' but '%s' was given!\n", yylineno, typeleft, typeright);
                                     }
                                 }
     }
-| factor	{$$ = $1;}
+| factor	{$$ = $1; }
 ;
 
 mulop : '*' 	{}
@@ -419,17 +406,16 @@ factor : '(' expression ')'	{}
 call : id2 
 {
 	positionInHashtable = -1;
-	positionInHashtable = searchPosition($1,helpstack);
+	positionInHashtable = searchPosition($1,helpstack);	
 	if (positionInHashtable == -1){
-		printf("Function '%s' not found at line: %d!\n", $1, yylineno);
+	   printf("ERROR (line: %d): Function '%s' used but not declared!\n", yylineno, $1);
 	}
 }
 '(' args ')'	
 {
-	hashtable *hashTable = &stack->hashTables[positionInHashtable];
-	
+	hashtable *hashTable = &helpstack->hashTables[positionInHashtable];	
 	if (hashTable[positionInHashtable].countparamfunc != countArgList){
-		printf("Arguments do not match function's arguments at line: %d!\n", yylineno);
+		printf("ERROR (line: %d): Function '%s' called with wrong number of parameters\n", yylineno, $1);
 	}
 	countArgList = 0;
 	positionInHashtable = -1;
@@ -438,13 +424,13 @@ call : id2
 ;
 
 id2 : ID {
-            strcpy(nodeName, yytext);
-           // printf("ime sto id2:id kai to nodeName ine: %s\n",nodeName);
-            $$ = nodeName;
-            if (positionInHashtable != -1) {   
-               //printf("empike telika");            
-                strcpy(typeofarg,searchHash(nodeName, stack));  
+            strcpy(nodeName, yytext);           
+            $$ = nodeName;            
+            if (positionInHashtable != -1) {                     
+               if (helpstack==NULL) initStack(&helpstack);
+               strcpy(typeofarg,searchHash(nodeName, stack));  
             }
+          
     };
 
 args : arg_list 	{}
@@ -462,6 +448,7 @@ arg_list : arg_list ',' expression
 ;
 %%
 int main(int argc, char *argv[]) {
+  
 	if (argc < 2) {
 		printf("Wrong number of arguments given!\n");
 		return -1;
@@ -472,14 +459,8 @@ int main(int argc, char *argv[]) {
 	return 1;
 }
 
-//void exec_for(){
-//            hashtable * hash;
-//          ht_create(&hash,"for","null",0);
-//        push(hash,stack);
-//      }
-
 void yyerror(const char *s) {
 
-	printf("Found error line: %d : %s : %s\n", yylineno, s, yytext);
+	printf("ERROR (line: %d): %s : %s\n", yylineno, s, yytext);
 }
 

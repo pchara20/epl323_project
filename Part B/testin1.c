@@ -1,19 +1,16 @@
-void main(void){
-  int p;
-  float e;
-  float c;
-  int A[5];
-  float b[6;
-  int x;
-  for(x=0; x<4; s++){
-    
-    int l;
-    l=5;
-    a=3.0;
-    e=5.0
-    e=p;
+int x;
+void main(void) { 
+  int i;
+  float f;
+ 
+  if (x==5){
+   int a;
+   if (x==1){
+      if (x==1){
+         i=i+f+i+i+i+i+i+i+i+f+f+f+f+f+5+5+5+5+2.0+0.8+.0+1;
+         f=1;
+         }
+   }
+   kati=5;
   }
-  c++;
-  c+=2;
-  l=3;
-}
+  }

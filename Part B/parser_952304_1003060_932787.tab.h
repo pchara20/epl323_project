@@ -72,9 +72,9 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 42 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
-	char *word;	
 #line 43 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
+	char *word;	
+#line 44 "parser_952304_1003060_932787.y" /* yacc.c:1909  */
 	char *character; 
 
 #line 81 "parser_952304_1003060_932787.tab.h" /* yacc.c:1909  */

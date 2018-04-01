@@ -141,44 +141,35 @@ int insertNode(NODE* node,STACK *stack){
 }
 
 int findScope ( STACK *stack){
-   int num;
-   num=stack->size-1;
-   while (stack->hashTables[num].isFunction!=1)
-      num--;
+   int num=-100;  
+   num=stack->size-1;  
+   while (stack->hashTables[num].isFunction!=1)      
+      num--;   
    return num;
    }
 
-char * searchHash(char * variable, STACK *stack){
-   int scopeMax=findScope(stack);
-   printf("To scope in %d\n",scopeMax);
+char * searchHash(char * variable, STACK *stack){     
+   int scopeMax=findScope(stack); 
    int tableIndex=stack->size-1;
-   char *temp;
-   if (searchNodes(&stack->hashTables[tableIndex],variable)!=NULL)
-      return searchNodes(&stack->hashTables[tableIndex],variable);
-   
-   while (tableIndex>=scopeMax){
-      if ((searchNodes(&stack->hashTables[tableIndex],variable))!=NULL)
+   char *temp; 
+   while (tableIndex>=scopeMax){            
+      if (strcmp(searchNodes(&stack->hashTables[tableIndex],variable), "NULL")){
          return searchNodes(&stack->hashTables[tableIndex],variable);
+         }
       else
          tableIndex--;
    }
-   if ((strcmp(stack->hashTables[0].namefunction,"global")==0)&&(searchNodes(&stack->hashTables[0],variable)!=NULL))
+   if ((strcmp(stack->hashTables[0].namefunction,"global")==0)&&(strcmp(searchNodes(&stack->hashTables[0],variable), "NULL"))){     
       return searchNodes(&stack->hashTables[0],variable);
+      }
    return "NULL";
 } 
 
-int searchPosition(char * variable, STACK *stack){
-   int scopeMax=findScope(stack);
-   int tableIndex=stack->size-1;
-   char *temp;
-   if (searchNodes(&stack->hashTables[tableIndex],variable)!=NULL)
-      return tableIndex;
-   
-   while (tableIndex>scopeMax){
-      if ((searchNodes(&stack->hashTables[tableIndex],variable))!=NULL)
-         return tableIndex;
-      else
-         tableIndex--;
+int searchPosition(char * variable, STACK *stack){  
+   int i = 0;
+   for (i = 0; i < stack->size; i++){
+      if (strcmp(stack->hashTables[i].namefunction, variable) == 0)
+         return i; 
    }
    return -1;
 } 
@@ -194,49 +185,3 @@ char * searchNodes(hashtable *table,char * var){
       }
       return "NULL";
 }
-   
-
-   int compareArgs(STACK *stack, char *typeofarg,int position,int varType){  
-    /*int i;
-    hashtable *hash=(*stack)->hashTables[position];
-    NODE *node=hash->node;
-    NODE *help=hash->node;
-    
-    for (i=0;i<hash->size;i++){
-        if(strcmp(node->type,typeofarg)==0 && node->varType==varType){
-            while(strcmp(help->name,node->name)!=0){
-                if(help->isclosed==0 && help->isarg==1)
-                    return 2;
-                    help=help->next;
-            }
-            node->isclosed=1;
-            return 1;
-        }
-         node=node->next;
-    }*/
-    return 0;
-}
-           
-         
-         
-   
-
-   
-
-
-
-   
-   
-
-
-
-
-
-
-      
-   
-
-
-
-
-
