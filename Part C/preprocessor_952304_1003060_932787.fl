@@ -1,0 +1,70 @@
+%{
+	/******************************************************************
+	Panayiotis Charalambous - pchara20 ID: 952304					***
+	Andreas Costi			- acosti01 ID: 1003060					***
+	Stephanie Nicolaou		- snikol07 ID: 932787					***
+																	***
+	Part A - Compiler												***
+	bison -d parser_952304_1003060_932787.y							***
+	flex preprocessor_952304_1003060_932787.fl						***
+	gcc parser_952304_1003060_932787.tab.c lex.yy.c -lfl -o a.out	***
+	./a.out inputFile.c outputFile.c								***
+	*******************************************************************/
+	#include "parser_952304_1003060_932787.tab.h"
+	int lineno = 1;
+%}
+
+whitespace	[ \r\t]
+comment		"/*"((\*+[^/*])|([^*]))*\**"*/"
+space 		[ ]
+%%
+else        return ELSE;
+if		    return IF;
+int			{yylval.type = 1; return INT;}
+float       {yylval.type = 2; return FLOAT;}
+return		return RETURN;
+void		{yylval.type = 3; return VOID;}
+while		return WHILE;
+for         return FOR;
+[0-9]+		{yylval.str = strdup(yytext);return NUM;}
+[0-9]*"."[0-9]+ {yylval.str = strdup(yytext);return FLOAT_NUM;}
+[a-zA-Z]+	{yylval.str = strdup(yytext); return ID;}
+"+"			return '+';
+"-"			return '-';
+"*"			return '*';
+"/"			return '/';
+"<"			return '<';
+"<="		return LTEQ;
+">"		    return '>';
+">="		return GTEQ;
+"=="		return EQUAL;
+"!="		return NEQ;
+"++"        return INC;
+"--"        return DEC;
+"+="        return PLUSEQ;
+"-="        return MINUSEQ;
+"="		    return '=';
+";"		    return ';';
+","		    return ',';
+"("		    return '(';
+")"		    return ')';
+"["		    return '[';
+"]"		    return ']';
+"{"		    return '{';
+"}"		    return '}';
+
+[\n]		{yylineno++;}
+
+{comment}	    {
+			        int i = 0;
+			        for (i = 0; i < yyleng; i++){
+				        if (yytext[i] == '\n')
+					        yylineno++;
+			        }
+		        }
+{whitespace}*	{/*do nothing*/}
+.               {ECHO; yyerror("unexpected character");}
+%%
+int yywrap(){
+	return 1;
+}
