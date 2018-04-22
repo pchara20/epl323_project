@@ -95,8 +95,11 @@ void yyerror(const char *s);
 %%
 program : declaration_list	{
     $$ = malloc(sizeof(Stmt));
-    $$->code = mergeStrings(3, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n\n", function_variables, $1->code);
-    $$->code = mergeStrings(2, $$->code, "\n\tli\t$v0, 10\n\tsyscall\n");
+    
+    char buffer[10000] = { };
+    sprintf(buffer, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n\n%s%s\n\tli\t$v0, 10\n\tsyscall\n", function_variables, $1->code);
+    $$->code = malloc(sizeof(strlen(buffer) + 1));
+    strcpy($$->code, buffer);
     fprintf(yyout, "%s\n", $$->code);
     name = $$->code;
 }
@@ -104,7 +107,10 @@ program : declaration_list	{
 
 declaration_list : declaration_list declaration	{
     $$ = malloc(sizeof(Stmt));
-    $$->code = mergeStrings(3, $1->code, "\n", $2->code);
+    char buffer[10000] = { };
+    sprintf(buffer, "%s\n%s", $1->code, $2->code);
+    $$->code = malloc(sizeof(strlen(buffer) + 1));
+    strcpy($$->code, buffer);
 }
 | declaration{
     $$ = $1;
@@ -117,12 +123,19 @@ declaration : var_declaration   {$$ = $1;}
 
 var_declaration : type_specifier ID ';'    {
     $$ = malloc(sizeof(Stmt));
-    if (!function)
-        $$->code = mergeStrings(3, "\t.align\t2\n", mergeStrings(2, "global_", $2),":\t.space\t4\n");
+    if (!function){
+      char buffer[10000];
+      sprintf(buffer, "\t.align\t2\nglobal_%s:\t.space\t4\n",$2);
+      char *tempstr=malloc(strlen(buffer)+1);      
+      strcpy(tempstr, buffer);
+      $$->code=tempstr;
+    }
     else {
-        insert(&array, $2);
-        function_variables = mergeStrings(4, function_variables, "\t.align\t2\n", mergeStrings(3, function_name, "_", $2), ":\t.space\t4\n");
-        $$->code = "";
+      insert(&array, $2);
+      char buffer[10000];
+      sprintf(buffer, "%s\t.align\t2\n%s_%s:\t.space\t4\n",function_variables, function_name, $2);
+      strcpy(function_variables, buffer);
+      $$->code = "";
     }
 }
 | type_specifier ID '[' NUM ']' ';' {}
@@ -136,16 +149,27 @@ type_specifier : INT {	$$ = 1; }
 
 fun_declaration : fund params ')' compound_stmt   {   
     $$ = malloc(sizeof(Stmt));
+
     if (first_function == 1) {
-        $$->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name, ":\n\t", $2->code, "\t", $4->code, "");
-        $$->code = mergeStrings(2, $$->code, "\n\tjr\t$ra\n");
-        first_function = 0;
+      char buffer[10000];
+      sprintf(buffer, "\n\t.text\n\t.globl\t%s\n%s:\n\t%s\t%s\n\tjr\t$ra\n",function_name, function_name, $2->code, $4->code);
+      char *tempstr=malloc(strlen(buffer)+1);      
+      strcpy(tempstr, buffer);
+      $$->code=tempstr;      
+      first_function = 0;
     } else if (strcmp("main", function_name) == 0) {
-        $$->code = mergeStrings(5, function_name, ":\n\t", $2->code, "\t", $4->code, "\n");
+         char buffer[10000];
+         sprintf(buffer, "%s:\n\t%s\t%s\n",function_name,$2->code, $4->code);
+         char *tempstr=malloc(strlen(buffer)+1);      
+         strcpy(tempstr, buffer);
+         $$->code=tempstr;    
         first_function = 0;
     } else {
-        $$->code = mergeStrings(6, function_name, ":\n\t", $2->code, "\t", $4->code, "\n");
-        $$->code = mergeStrings(2, $$->code, "\n\tjr\t$ra\n");
+      char buffer[10000];
+         sprintf(buffer, "%s:\n\t%s\t%s\n\n\tjr\t$ra\n",function_name,$2->code,$4->code);
+         char *tempstr=malloc(strlen(buffer)+1);      
+         strcpy(tempstr, buffer);
+         $$->code=tempstr;           
     }
     function = 0;
     a_counter = 0;
@@ -169,9 +193,13 @@ params : param_list {
 ;
 
 param_list : param_list ',' param {
-    $$ = malloc(sizeof(Stmt));
-    $$->code = mergeStrings(2, $1->code, $3->code);
-    a_counter = 0;
+     $$ = malloc(sizeof(Stmt));
+     char buffer[10000];
+     sprintf(buffer, "%s%s",$1->code, $3->code);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;     
+     a_counter = 0;
 }
 | param {
     $$ = $1;    
@@ -183,7 +211,12 @@ param : type_specifier ID {
     $$->start = createTemp();
     char str[15];
     sprintf(str, "%d", a_counter);
-    $$->code = mergeStrings(4, "\n\tmove\t", $$->start, ", $a", str);
+    
+    char buffer[10000];
+    sprintf(buffer, "\n\tmove\t%s, $a%s",$$->start,str);
+    char *tempstr=malloc(strlen(buffer)+1);      
+    strcpy(tempstr, buffer);
+    $$->code=tempstr;
     function_params[a_counter] = (Node *)malloc(sizeof(Node));
     function_params[a_counter]->key = $2;
     function_params[a_counter]->value = $$->start;
@@ -194,11 +227,20 @@ param : type_specifier ID {
 
 compound_stmt : '{' local_declarations statement_list '}'   {
     $$ = malloc(sizeof(Stmt));
-    $$->code = mergeStrings(2, $2->code, $3->code);
+    char buffer[10000];
+     sprintf(buffer, "%s%s",$2->code, $3->code);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
 };
 
 local_declarations : local_declarations var_declaration {
-    $$->code = mergeStrings(2, $1->code, $2->code);
+     char buffer[10000];
+     sprintf(buffer, "%s%s",$1->code, $2->code);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
+
 }
 | /*epsilon*/   {
     $$ = malloc(sizeof(Stmt));
@@ -207,8 +249,12 @@ local_declarations : local_declarations var_declaration {
 ;
 
 statement_list : statement_list statement   {
-    $$->code = mergeStrings(2, $1->code, $2->code);
-}
+ char buffer[10000];
+     sprintf(buffer, "%s%s",$1->code, $2->code);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
+     }
 | /*epsilon*/   {
     $$ = malloc(sizeof(Stmt));
     $$->code = "";
@@ -232,20 +278,34 @@ expression_stmt : expression ';'		{$$= $1;}
 selection_stmt : IF '(' expression ')' statement %prec "if"	{
                $$=malloc(sizeof(Stmt)); 	
 					$$->start=createLabel();
-					$$->code= mergeStrings(7,"\n\t",$3->code,$$->start,$5->code,"\n",$$->start,":" );
-			}
+					
+					 char buffer[10000];
+     sprintf(buffer, "\n\t%s%s%s\n%s:",$3->code,$$->start,$5->code,$$->start);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
+}
 | IF '(' expression ')' statement %prec "if" ELSE statement	{
                   $$=malloc(sizeof(Stmt)); 	
 						$$->start=createLabel();
 						$$->next=createLabel();
-						$$->code= mergeStrings(14,"\n\t",$3->code,$$->next,$5->code,"\n\t","j\t", $$->start,"\n",$$->next,":" ,$7->code,"\n",$$->start,":");
+						
+						char buffer[10000];
+     sprintf(buffer, "\n\t%s%s%s\n\tj\t%s\n%s:%s\n%s:",$3->code,$$->next,$5->code,$$->start,$$->next,$7->code,$$->start);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
 			};
 			
 iteration_stmt : WHILE '(' expression ')' statement	{
                $$=malloc(sizeof(Stmt)); 	
 					$$->start=createLabel();
 					$$->next=createLabel();
-					$$->code= mergeStrings(13,"\n",$$->start,":","\t",$3->code,$$->next,$5->code,"\n\t","j\t", $$->start,"\n",$$->next,":");
+					char buffer[10000];
+     sprintf(buffer, "\n%s:\t%s%s%s\n\tj\t%s\n%s:",$$->start,$3->code,$$->next,$5->code,$$->start,$$->next);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
 						}
 | for_stmt {$$=$1;}
 
@@ -255,7 +315,11 @@ iteration_stmt : WHILE '(' expression ')' statement	{
 for_stmt : FOR '(' expression ';' expression ';' expression ')' statement {$$=malloc(sizeof(Stmt)); 	
 									$$->start=createLabel();
 									$$->next=createLabel();
-									$$->code= mergeStrings(16,$3->code,"\n",$$->start,":","\t",$5->code,$$->next,$9->code,"\n\t",$7->code,"\n\t","j\t", $$->start,"\n",$$->next,":");					
+									char buffer[10000];
+     sprintf(buffer, "%s\n%s:\t%s%s%s\n\t%s\n\tj\t%s\n%s:",$3->code,$$->start,$5->code,$$->next,$9->code,$7->code,$$->start,$$->next);
+     char *tempstr=malloc(strlen(buffer)+1);      
+     strcpy(tempstr, buffer);
+     $$->code=tempstr;
 			}
 ;
 
@@ -267,11 +331,19 @@ expression : var equals expression {
                   $$=malloc(sizeof(Exp));
 						$$->value=$1->value;
 						if (strcmp($3->code,"\n\tjal\tinput")==0) {
-							$$->code =mergeStrings(9,$1->code,"\n\t","li\t$v0",", 5","\n\tsyscall","\n\t","move\t",$1->value,", $v0");
-							$$->code =mergeStrings(7,$$->code,"\n\t","sw\t",$1->value,", (", $1->position,")");
+						   char buffer[10000];
+                     sprintf(buffer, "%s\n\tli\t$v0, 5\n\tsyscall\n\tmove\t%s, $v0\n\tsw\t%s, (%s)",$1->code, $1->value, $1->value, $1->position);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;
+						 
 						}						
 						else{
-							$$->code =mergeStrings(8,$1->code,$3->code,"\n\t","sw\t",$3->value,", (", $1->position,")");							
+						   char buffer[10000];
+                     sprintf(buffer, "%s%s\n\tsw\t%s, (%s)",$1->code, $3->code, $3->value, $1->position);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;					
 		}
 						}					
 | simple_expression			{$$=$1;}
@@ -281,17 +353,25 @@ equals: '=' | PLUSEQ | MINUSEQ ;
 
 var : ID {$$=malloc(sizeof(Exp)); 
 					 $$->position =createTemp();	
-					if(!function){	
-						$$->code=mergeStrings(5,"\n\t","la\t",$$->position,", ",mergeStrings(2,"global_",$1)); 
-						$$->value=createTemp();	
-						$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,", (",$$->position,")");
+					if(!function){
+					   $$->value=createTemp();
+					   char buffer[10000];
+                  sprintf(buffer, "\n\tla\t%s, global_%s\n\tlw\t%s, (%s)",$$->position, $1, $$->value, $$->position);
+                  char *tempstr=malloc(strlen(buffer)+1);      
+                  strcpy(tempstr, buffer);
+                  $$->code=tempstr;
+						
 						}
 					else{
 						char *str = findInTheArray(&array,$1);
 						if(str) {
-							$$->code=mergeStrings(5,"\n\t","la\t",$$->position,", ",mergeStrings(3,function_name,"_",$1)); 
-							$$->value=createTemp();	
-							$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,", (",$$->position,")");
+						   $$->value=createTemp();
+						   char buffer[10000];
+                     sprintf(buffer, "\n\tla\t%s, %s_%s\n\tlw\t%s, (%s)",$$->position, function_name, $1, $$->value, $$->position);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;
+						 
 						}
 						else	{							
 							$$->code="";
@@ -317,32 +397,62 @@ var : ID {$$=malloc(sizeof(Exp));
 
 simple_expression : additive_expression relop additive_expression	{$$=malloc(sizeof(Exp)); 
 					if(strcmp("LTEQ",$2)==0){
-						$$->position =createTemp();	
-						$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","bgt","\t",$1->value,", ", $3->value,", ");  
+						$$->position =createTemp();
+						char buffer[10000];
+                  sprintf(buffer, "%s%s\n\tbgt\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                  char *tempstr=malloc(strlen(buffer)+1);      
+                  strcpy(tempstr, buffer);
+                  $$->code=tempstr;	
+
 						}
 					else 	
 						if(strcmp("<",$2)==0){
-							$$->position =createTemp();	
-							$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","bge","\t",$1->value,", ", $3->value,", "); 
+							$$->position =createTemp();
+							char buffer[10000];
+                     sprintf(buffer, "%s%s\n\tbge\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;	
+
 					}
 					else 	
 						if(strcmp(">",$2)==0){						
-							$$->position =createTemp();	
-							$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","ble","\t",$1->value,", ", $3->value,", "); 
+							$$->position =createTemp();
+							char buffer[10000];
+                     sprintf(buffer, "%s%s\n\tble\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;	
+
 					}
 					else
 						if(strcmp("GTEQ",$2)==0){	
-							$$->position =createTemp();	
-							$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","blt","\t",$1->value,", ", $3->value,", "); 
+							$$->position =createTemp();
+							char buffer[10000];
+                     sprintf(buffer, "%s%s\n\tblt\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;	
+
 					}
 					else
 						if(strcmp("EQUAL",$2)==0){				
-							$$->position =createTemp();	
-							$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","bne","\t",$1->value,", ", $3->value,", "); 
+							$$->position =createTemp();
+							char buffer[10000];
+                     sprintf(buffer, "%s%s\n\tbne\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                     char *tempstr=malloc(strlen(buffer)+1);      
+                     strcpy(tempstr, buffer);
+                     $$->code=tempstr;	
+
 					}
 					else{
 						$$->position =createTemp();	
-						$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","beq","\t",$1->value,", ", $3->value,", "); 		
+						char buffer[10000];
+                  sprintf(buffer, "%s%s\n\tbeq\t%s, %s, ", $1->code, $3->code, $1->value, $3->value);
+                  char *tempstr=malloc(strlen(buffer)+1);      
+                  strcpy(tempstr, buffer);
+                  $$->code=tempstr;
+
 					}
 					}
 |additive_expression         {$$=$1;}
@@ -359,13 +469,22 @@ relop : LTEQ	{$$="LTEQ";}
 additive_expression : additive_expression addop term {$$=malloc(sizeof(Exp));
 													   $$->position = createTemp();
 													   $$->value = $$->position;
-													   	$$->code = mergeStrings(10,$1->code, $3->code, "\n\t",$2,"\t",$$->position,", " , $1->value , ", ",$3->value);
+													   char buffer[10000];
+                                          sprintf(buffer, "%s%s\n\t%s\t%s, %s, %s", $1->code, $3->code, $2, $$->position, $1->value, $3->value);
+                                          char *tempstr=malloc(strlen(buffer)+1);      
+                                          strcpy(tempstr, buffer);
+                                          $$->code=tempstr;   
+
 													   	}
 | factor adds {$$=malloc(sizeof(Exp)); 
 					$$->position = $1->position;
 					$$->value =$1->position;
-					$$->code= mergeStrings(7,$1->code,"\n\t",$2,$1->value,", ",$1->value,", 1"); 
-					$$->code = mergeStrings(7,$$->code,"\n\t","sw\t",$1->value,", (",$$->position,")");
+					char buffer[10000];
+               sprintf(buffer, "%s\n\t%s%s, %s, 1\n\tsw\t%s, (%s)", $1->code, $2, $1->value, $1->value, $1->value, $$->position);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;
+					
 					}
 | term							    { $$=$1;}
 					
@@ -383,7 +502,12 @@ adds: INC			{$$="addi\t";} //edo
 term : term mulop factor	{$$=malloc(sizeof(Exp)); 
 					$$->position =createTemp();
 					$$->value =$$->position;
-					$$->code= mergeStrings(11,$1->code,$3->code,"\n\t",$2,"\t",$1->value,", ",$3->value,"\n\t","mflo\t",$$->position); 
+					char buffer[10000];
+               sprintf(buffer, "%s%s\n\t%s\t%s, %s\n\tmflo\t%s", $1->code, $3->code, $2, $1->value, $3->value, $$->position);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;
+
 					}
 | factor	{$$ = $1;}
 ;
@@ -398,21 +522,38 @@ factor : '(' expression ')'	{$$=$2;}
 | NUM									{$$=malloc(sizeof(Exp)); 
 										 $$->position=createTemp();
 										 $$->value=$$->position;
-										 $$->code=mergeStrings(5,"\n\t","li\t",$$->position,", ",$1);}
+										 char buffer[10000];
+               sprintf(buffer, "\n\tli\t%s, %s", $$->position, $1);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;			   
+
+										 }
 | FLOAT_NUM      {$$=malloc(sizeof(exp)); 
 					$$->position=createTemp();
 					$$->value=$$->position;
-					$$->code=mergeStrings(5,"\n\t","li\t",$$->position,", ",$1); 
+					char buffer[10000];
+               sprintf(buffer, "\n\tli\t%s, %s", $$->position, $1);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;
+
 	
 }
 ;
 
-call : ID 	'(' args ')'	{
-if(strcmp($1,"print")==0){			
+call : ID '(' args ')'	{
+if(strcmp($1,"print")==0){	
+                        char buffer[10000];
+               
+                         sprintf(buffer, "%s\n\tli\t$v0, 1%s\n\tmove\t$a0, %s\n\tsyscall",$3->code,$$->code,$3->value );
+                         char *tempstr=malloc(strlen(buffer)+1);      
+                         strcpy(tempstr, buffer);
+                         $$->code=tempstr;
+		
 						$$=malloc(sizeof(Exp)); 
 						$$->position =$1;	
-						$$->code=mergeStrings(2,$3->code,"\n\tli\t$v0, 1"); 
-						$$->code=mergeStrings(4,$$->code,"\n\tmove\t$a0, ",$3->value,"\n\tsyscall"); 
+						 
 					}
 					else 
 						if(strcmp($1,"println")==0){
@@ -420,13 +561,26 @@ if(strcmp($1,"print")==0){
 							$$->position =$1;	
 							$$->value =$1;	
 							if (empty==0) {
-								$$->code=mergeStrings(2,$3->code,"\n\tli\t$v0, 1"); 
-								$$->code=mergeStrings(4,$$->code,"\n\tmove\t$a0, ",$3->value,"\n\tsyscall"); 
-								$$->code=mergeStrings(2,$$->code,"\n\tli\t$v0, 4"); 
-								$$->code=mergeStrings(4,$$->code,"\n\tla\t$a0, ","newln","\n\tsyscall"); 
+							
+							
+							    char buffer[10000];
+               
+                                sprintf(buffer, "%s\n\tli\t$v0, 1\n\tmove\t$a0, %s\n\tsyscall\n\tli\t$v0, 4\n\tla\t$a0, newln\n\tsyscall",$3->code,$3->value);
+                                char *tempstr=malloc(strlen(buffer)+1);      
+                                strcpy(tempstr, buffer);
+                                $$->code=tempstr;
+							
 							}
 							else { 
-								$$->code=mergeStrings(4,"\n\tli\t$v0, 4","\n\tla\t$a0, ","newln","\n\tsyscall"); 
+							
+							char buffer[10000];
+               
+                                sprintf(buffer, "\n\tli\t$v0, 4\n\tla\t$a0, newln\n\tsyscall");
+                                char *tempstr=malloc(strlen(buffer)+1);      
+                                strcpy(tempstr, buffer);
+                                $$->code=tempstr;
+							
+
 								empty=0;
 							}
 						}else
@@ -434,28 +588,51 @@ if(strcmp($1,"print")==0){
 								$$=malloc(sizeof(Exp)); 
 								$$->position =$3->position;	
 								$$->value = $3->position;
-								$$->code=mergeStrings(1,"\n\tli\t$v0, 5"); 
-								$$->code=mergeStrings(5,$$->code,"\n\tsyscall","\n\tmove\t",$3->position,",$v0\n\t"); 								
-							}
+								 char buffer[10000];
+								 sprintf(buffer, "\n\tli\t$v0, 5%s\n\tsyscall,\n\tmove\t%s,$v0\n\t",$$->code,$3->position);
+                         char *tempstr=malloc(strlen(buffer)+1);      
+                         strcpy(tempstr, buffer);
+                         $$->code=tempstr;
+						}
 							else
 								if (strcmp($1,"input")==0){
 									$$=malloc(sizeof(Exp)); 
-									$$->code=mergeStrings(2,"\n\tjal\t",$1); 
+									char buffer[10000];
+               
+                                sprintf(buffer, "\n\tjal\t%s",$1);
+                                char *tempstr=malloc(strlen(buffer)+1);      
+                                strcpy(tempstr, buffer);
+                                $$->code=tempstr;
+							
+									
+
 								}
 								else 
 									if (strcmp($1,"output")==0) {
 										$$=malloc(sizeof(Exp)); 
 										$$->position =$1;	
 										$$->value =$1;	
-										$$->code =mergeStrings(8,$3->code,"\n\t","li\t$v0",", 1","\n\t","move\t$a0, ",$3->value,"\n\tsyscall");
-									}
+										char buffer[10000];
+               
+                                sprintf(buffer, "%s\n\t,li\t$v0, 1\n\tmove\t$a0%s\n\tsyscall",$3->code,$3->value);
+                                char *tempstr=malloc(strlen(buffer)+1);      
+                                strcpy(tempstr, buffer);
+                                $$->code=tempstr;
+                        }
 									else 
 										{
 											$$=malloc(sizeof(Exp)); 
 											$$->position =$3->position;	
 											$$->value = $3->position;
-											$$->code=mergeStrings(2,"\n\tjal\t",$1); 
-											$$->code=mergeStrings(3,$3->code,"\n\tjal\t",$1); 
+											
+											char buffer[10000];
+               
+                                sprintf(buffer, "\n\tjal\t%s%s\n\tjal\t%s",$1,$3->code,$1);
+                                char *tempstr=malloc(strlen(buffer)+1);      
+                                strcpy(tempstr, buffer);
+                                $$->code=tempstr;
+											
+									
 											a_counter=0;
 										}
    
@@ -467,12 +644,28 @@ args : arg_list 	{$$=$1;empty=0;a_counter=0;}
 ;
 
 arg_list : arg_list ',' expression { 
-									$$=$3;char str[15];sprintf(str, "%d", a_counter);$$->code=mergeStrings(6,$1->code,$3->code,"\n\tmove\t$a",str,", ",$3->value);
+									$$=$3;char str[15];sprintf(str, "%d", a_counter);
+									
+									char buffer[10000];
+               sprintf(buffer, "%s%s\n\tmove\t$a%s, %s", $1->code, $3->code,str,$3->value);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;
+			   
+
 									a_counter=0; 
 								   }
 | expression         { 
 					$$=$1;char str[15];sprintf(str, "%d", a_counter);
-					$$->code=mergeStrings(5,$1->code,"\n\tmove\t$a",str,", ",$1->value); a_counter++; }
+					
+					char buffer[10000];
+               sprintf(buffer, "%s\n\tmove\t$a%s, %s", $1->code, str,$1->value);
+               char *tempstr=malloc(strlen(buffer)+1);      
+               strcpy(tempstr, buffer);
+               $$->code=tempstr;
+					
+
+					a_counter++; }
 					;
 %%
 int main(int argc, char *argv[]) {
@@ -493,8 +686,8 @@ int main(int argc, char *argv[]) {
 	
 	int i;
 	for (i=0; i<100; i++)
-		array.info[i]=NULL;      //edo
-	function_variables = mergeStrings(1,"");
+		array.info[i]=NULL;  
+	function_variables = malloc(sizeof(char *) * 10000);
 	function_params = (Node **) malloc(sizeof(Node*)*4);
 		
 	printf("\n");
