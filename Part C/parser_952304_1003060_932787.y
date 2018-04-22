@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "symboltable.h"
 #include "helper.h"
 
+#define YYDEBUG 1
 extern char *yytext;
 extern int yylex();
 extern int yylineno;
@@ -24,16 +24,13 @@ extern FILE *yyin;
 extern FILE *yyout;
 char *name, *function_name, *function_variables;
 int function = 0, first_function = 1, empty = 0, a_counter = 0;
-NODE **function_params;
+Node **function_params;
 Array array;
- 
-#define YYDEBUG_LEXER_TEXT yytext
 
 void yyerror(const char *s);
-
 %}
 
-%expect 1
+
 
 %union {
     int a_number;
@@ -72,26 +69,26 @@ void yyerror(const char *s);
 %token VOID
 %token INT
 %token FLOAT
-%token FLOAT_NUM
+%token <str> FLOAT_NUM
 %token WHILE
-%token ID
-%token NUM
+%token <str> ID
+%token <str> NUM
 %token PLUSEQ
 %token MINUSEQ
 %token INC
 %token DEC
 %token FOR
 
-%type <character> program declaration_list declaration var_declaration
-%type <character> type_specifier fun_declaration params param_list param
-%type <character> compound_stmt local_declarations statement_list statement
-%type <character> expression_stmt selection_stmt iteration_stmt return_stmt
-%type <character> expression var simple_expression relop additive_expression
-%type <character> addop term mulop factor args arg_list for_stmt 
-%type <word> error call id2 whileloop forloop if else
+%type <str> error
+%type <type> type_specifier
+%type <exp> var additive_expression simple_expression expression expression_stmt term factor call args arg_list
+%type <stmt> program declaration_list declaration var_declaration fun_declaration params param_list param compound_stmt local_declarations statement_list statement selection_stmt iteration_stmt return_stmt for_stmt
+%type  <op> relop addop mulop adds
+
 
 %nonassoc "if"
 %nonassoc ELSE
+%nonassoc '<' '>' '=' LTEQ GTEQ EQUAL NEQ
 
 %left '+' '-'
 %left '*' '/'
@@ -110,60 +107,38 @@ declaration_list : declaration_list declaration	{
     $$ = malloc(sizeof(Stmt));
     $$->code = mergeStrings(3, $1->code, "\n", $2->code);
 }
-| declaration                                   {
+| declaration{
     $$ = $1;
 }
 ;
 
-declaration : var_declaration   {
-    $$ = $1;
-}			
-| fun_declaration               {
-    $$ = $1;
-}						
+declaration : var_declaration   {$$ = $1;}		
+| fun_declaration               {$$ = $1;}						
 ;
 
-var_declaration : type_specifier id2 ';'    {
+var_declaration : type_specifier ID ';'    {
     $$ = malloc(sizeof(Stmt));
     if (!function)
-        $$->code = mergeStrings(3, "\t.align\t2\n", mergeStrings(2, "global_", $2), ":\t.space\t4\n");
+        $$->code = mergeStrings(3, "\t.align\t2\n", mergeStrings(2, "global_", $2),":\t.space\t4\n");
     else {
         insert(&array, $2);
         function_variables = mergeStrings(4, function_variables, "\t.align\t2\n", mergeStrings(3, function_name, "_", $2), ":\t.space\t4\n");
         $$->code = "";
     }
 }
-| type_specifier id2 '[' NUM ']' ';' {
-	
-}
-| type_specifier error {yyerrok; yyclearin; }
+| type_specifier ID '[' NUM ']' ';' {}
 ;
 
-type_specifier : INT
-{
-	$$ = 1;
-}
-| VOID
-{
-	$$ = 2;
-}
-| FLOAT
-{
-	$$ = 3;
-}
-| error
-{
-	yyclearin;
-}
+type_specifier : INT {	$$ = 1; }
+| VOID {	$$ = 2;}
+| FLOAT {$$ = 3;}
+| error {}
 ;
 
-fun_declaration : type_specifier id2 '(' {
-    function_name = $2; 
-    function = 1;
-} params ')' compound_stmt   {
+fun_declaration : fund params ')' compound_stmt   {   
     $$ = malloc(sizeof(Stmt));
     if (first_function == 1) {
-        $$->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", ":\n\t", $2->code, "\n\t", $4->code, "\n");
+        $$->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name,":\n\t", $2->code, "\n\t", $4->code, "\n");
         $$->code = mergeStrings(2, $$->code, "\n\tjr\t$ra\n");
         first_function = 0;
     } else if (strcmp("main", function_name) == 0) {
@@ -177,9 +152,13 @@ fun_declaration : type_specifier id2 '(' {
     a_counter = 0;
     clearArray(&array);
 }
-| type_specifier id2 error params ')' compound_stmt {yyerrok;}
-
+| fund error ')' compound_stmt {}
 ;
+
+fund: type_specifier ID '(' {
+    function_name = $2; 
+    function = 1;
+}
 
 params : param_list {
     $$ = $1;
@@ -196,11 +175,11 @@ param_list : param_list ',' param {
     a_counter = 0;
 }
 | param {
-    $$ = $1;
+    $$ = $1;    
 }
 ;
 
-param : type_specifier id2 {
+param : type_specifier ID {
     $$ = malloc(sizeof(Stmt));
     $$->start = createTemp();
     char str[15];
@@ -211,10 +190,7 @@ param : type_specifier id2 {
     function_params[a_counter]->value = $$->start;
     a_counter++;
 }
-| type_specifier id2 '[' ']' {
-			
-}
-| error { yyerrok; yyclearin; }
+| type_specifier ID '[' ']' {}
 ;
 
 compound_stmt : '{' local_declarations statement_list '}'   {
@@ -223,7 +199,7 @@ compound_stmt : '{' local_declarations statement_list '}'   {
 };
 
 local_declarations : local_declarations var_declaration {
-    $$->code = mergeStrings(2, $2->code, $3->code);
+    $$->code = mergeStrings(2, $1->code, $2->code);
 }
 | /*epsilon*/   {
     $$ = malloc(sizeof(Stmt));
@@ -243,76 +219,52 @@ statement_list : statement_list statement   {
 statement : expression_stmt		{$$=malloc(sizeof(Stmt)); 
 						                $$->code = $1->code;
 						               }
-| compound_stmt				{$$= $1;}
+| compound_stmt			{$$= $1;}
 | selection_stmt			{$$= $1;}
 | iteration_stmt			{$$= $1;}
 | return_stmt				{$$= $1;}
-| error	';'				{yyerrok; yyclearin;}
+
 ;
 
 expression_stmt : expression ';'		{$$= $1;}
 | ';'								{}
-| error									{yyclearin;}
 ;
 
-selection_stmt : if '(' expression ')' statement %prec "if"	{
+selection_stmt : IF '(' expression ')' statement %prec "if"	{
                $$=malloc(sizeof(Stmt)); 	
 					$$->start=createLabel();
 					$$->code= mergeStrings(7,"\n\t",$3->code,$$->start,$5->code,"\n",$$->start,":" );
 			}
-| if '(' expression ')' statement %prec "if" else statement	{
+| IF '(' expression ')' statement %prec "if" ELSE statement	{
                   $$=malloc(sizeof(Stmt)); 	
 						$$->start=createLabel();
 						$$->next=createLabel();
 						$$->code= mergeStrings(14,"\n\t",$3->code,$$->next,$5->code,"\n\t","j\t", $$->start,"\n",$$->next,":" ,$7->code,"\n",$$->start,":");
 			};
 			
-if : IF {
-            
-    }
-;
-else : ELSE {
-	            
-    }
-;
-iteration_stmt : whileloop '(' expression ')' statement	{
+iteration_stmt : WHILE '(' expression ')' statement	{
                $$=malloc(sizeof(Stmt)); 	
 					$$->start=createLabel();
 					$$->next=createLabel();
 					$$->code= mergeStrings(13,"\n",$$->start,":","\t",$3->code,$$->next,$5->code,"\n\t","j\t", $$->start,"\n",$$->next,":");
 						}
 | for_stmt {$$=$1;}
-| whileloop error expression ')' statement  {yyerrok;}
-| whileloop '(' expression error statement  {yyerrok;}
+
+
 ;
 
-for_stmt : forloop '(' expression ';' expression ';' expression ')' statement {$$=malloc(sizeof(Stmt)); 	
+for_stmt : FOR '(' expression ';' expression ';' expression ')' statement {$$=malloc(sizeof(Stmt)); 	
 									$$->start=createLabel();
 									$$->next=createLabel();
 									$$->code= mergeStrings(16,$3->code,"\n",$$->start,":","\t",$5->code,$$->next,$9->code,"\n\t",$7->code,"\n\t","j\t", $$->start,"\n",$$->next,":");					
-									}
-| forloop error expression ';' expression ';' expression ')' statement    {yyerrok;}
-| forloop '(' expression error expression ';' expression ')' statement    {yyerrok;}
-| forloop '(' expression ';' expression error expression ')' statement    {yyerrok;}
-| forloop '(' expression ';' expression ';' expression error statement    {yyerrok;}
+			}
 ;
-
-forloop : FOR {             
-	            
-    }
-;
-
-whileloop: WHILE {  
-               
-    }
-; 
-
 
 return_stmt : RETURN ';'    {$$=malloc(sizeof(Exp));$$->code="";}
 | RETURN expression ';'     {$$=malloc(sizeof(Exp)); $$->code="";}
 ;
 
-expression : var '=' expression {
+expression : var equals expression {
                   $$=malloc(sizeof(Exp));
 						$$->value=$1->value;
 						if (strcmp($3->code,"\n\tjal\tinput")==0) {
@@ -322,16 +274,13 @@ expression : var '=' expression {
 						else{
 							$$->code =mergeStrings(8,$1->code,$3->code,"\n\t","sw\t",$3->value,", (", $1->position,")");							
 		}
-						}
-| var error expression      {yyerrok;}
+						}					
 | simple_expression			{$$=$1;}
-| var INC                   {}
-| var DEC                   {}
-| var PLUSEQ NUM            {}
-| var MINUSEQ NUM           {}
 ;
 
-var : id2 {$$=malloc(sizeof(Exp)); 
+equals: '=' | PLUSEQ | MINUSEQ ;
+
+var : ID {$$=malloc(sizeof(Exp)); 
 					 $$->position =createTemp();	
 					if(!function){	
 						$$->code=mergeStrings(5,"\n\t","la\t",$$->position,", ",mergeStrings(2,"global_",$1)); 
@@ -363,15 +312,11 @@ var : id2 {$$=malloc(sizeof(Exp));
 					
 					$$->imm = 0;
 					}
-| id2 '[' expression ']' {
-	                        
-    }
-| id2 error expression ']'               {yyerrok;}
-| id2 '[' expression error               {yyerrok;};
+| ID '[' expression ']' {}
+
 ;
 
-simple_expression : additive_expression         {$$=$1;}
-| additive_expression relop additive_expression	{$$=malloc(sizeof(Exp)); 
+simple_expression : additive_expression relop additive_expression	{$$=malloc(sizeof(Exp)); 
 					if(strcmp("LTEQ",$2)==0){
 						$$->position =createTemp();	
 						$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","bgt","\t",$1->value,", ", $3->value,", ");  
@@ -401,6 +346,8 @@ simple_expression : additive_expression         {$$=$1;}
 						$$->code= mergeStrings(9,$1->code,$3->code,"\n\t","beq","\t",$1->value,", ", $3->value,", "); 		
 					}
 					}
+|additive_expression         {$$=$1;}
+|additive_expression error additive_expression {}
 ;
 relop : LTEQ	{$$="LTEQ";}
 | '<'			{$$="<";}
@@ -415,7 +362,14 @@ additive_expression : additive_expression addop term {$$=malloc(sizeof(Exp));
 													   $$->value = $$->position;
 													   	$$->code = mergeStrings(10,$1->code, $3->code, "\n\t",$2,"\t",$$->position,"," , $1->value , ",",$3->value);
 													   	}
-| term												    { $$=$1;}
+| factor adds {$$=malloc(sizeof(Exp)); 
+					$$->position = $1->position;
+					$$->value =$1->position;
+					$$->code= mergeStrings(7,$1->code,"\n\t",$2,$1->value,", ",$1->value,", 1"); 
+					$$->code = mergeStrings(7,$$->code,"\n\t","sw\t",$1->value,", (",$$->position,")");
+					}
+| term							    { $$=$1;}
+					
 ;
 
 addop : '+'		{$$="add";}
@@ -454,8 +408,7 @@ factor : '(' expression ')'	{$$=$2;}
 }
 ;
 
-call : id2  { }
-	'(' args ')'	{
+call : ID 	'(' args ')'	{
 if(strcmp($1,"print")==0){			
 						$$=malloc(sizeof(Exp)); 
 						$$->position =$1;	
@@ -509,8 +462,6 @@ if(strcmp($1,"print")==0){
    
 									}
 ;
-
-id2 : ID { };
 
 args : arg_list 	{$$=$1;empty=0;a_counter=0;}
 | /*epsilon*/	    {empty=1;}

@@ -1,9 +1,3 @@
-int asdsad(void){
-    
-    return 1;
-}
-
-
 void gcd (int y,int z) {
 	int x;
 	x=y+z;
