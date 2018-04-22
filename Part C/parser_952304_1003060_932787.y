@@ -85,7 +85,6 @@ void yyerror(const char *s);
 %type <stmt> program declaration_list declaration var_declaration fun_declaration params param_list param compound_stmt local_declarations statement_list statement selection_stmt iteration_stmt return_stmt for_stmt
 %type  <op> relop addop mulop adds
 
-
 %nonassoc "if"
 %nonassoc ELSE
 %nonassoc '<' '>' '=' LTEQ GTEQ EQUAL NEQ
@@ -96,7 +95,7 @@ void yyerror(const char *s);
 %%
 program : declaration_list	{
     $$ = malloc(sizeof(Stmt));
-    $$->code = mergeStrings(3, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n", function_variables, $1->code);
+    $$->code = mergeStrings(3, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n\n", function_variables, $1->code);
     $$->code = mergeStrings(2, $$->code, "\n\tli\t$v0, 10\n\tsyscall\n");
     fprintf(yyout, "%s\n", $$->code);
     name = $$->code;
@@ -138,14 +137,14 @@ type_specifier : INT {	$$ = 1; }
 fun_declaration : fund params ')' compound_stmt   {   
     $$ = malloc(sizeof(Stmt));
     if (first_function == 1) {
-        $$->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name,":\n\t", $2->code, "\n\t", $4->code, "\n");
+        $$->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name, ":\n\t", $2->code, "\t", $4->code, "");
         $$->code = mergeStrings(2, $$->code, "\n\tjr\t$ra\n");
         first_function = 0;
     } else if (strcmp("main", function_name) == 0) {
-        $$->code = mergeStrings(5, function_name, ":\n\t", $2->code, "\n\t", $4->code, "\n");
+        $$->code = mergeStrings(5, function_name, ":\n\t", $2->code, "\t", $4->code, "\n");
         first_function = 0;
     } else {
-        $$->code = mergeStrings(6, function_name, ":\n\t", $2->code, "\n\t", $4->code, "\n");
+        $$->code = mergeStrings(6, function_name, ":\n\t", $2->code, "\t", $4->code, "\n");
         $$->code = mergeStrings(2, $$->code, "\n\tjr\t$ra\n");
     }
     function = 0;
@@ -285,14 +284,14 @@ var : ID {$$=malloc(sizeof(Exp));
 					if(!function){	
 						$$->code=mergeStrings(5,"\n\t","la\t",$$->position,", ",mergeStrings(2,"global_",$1)); 
 						$$->value=createTemp();	
-						$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,",(",$$->position,")");
+						$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,", (",$$->position,")");
 						}
 					else{
 						char *str = findInTheArray(&array,$1);
 						if(str) {
 							$$->code=mergeStrings(5,"\n\t","la\t",$$->position,", ",mergeStrings(3,function_name,"_",$1)); 
 							$$->value=createTemp();	
-							$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,",(",$$->position,")");
+							$$->code=mergeStrings(6,$$->code,"\n\tlw\t",$$->value,", (",$$->position,")");
 						}
 						else	{							
 							$$->code="";
@@ -360,7 +359,7 @@ relop : LTEQ	{$$="LTEQ";}
 additive_expression : additive_expression addop term {$$=malloc(sizeof(Exp));
 													   $$->position = createTemp();
 													   $$->value = $$->position;
-													   	$$->code = mergeStrings(10,$1->code, $3->code, "\n\t",$2,"\t",$$->position,"," , $1->value , ",",$3->value);
+													   	$$->code = mergeStrings(10,$1->code, $3->code, "\n\t",$2,"\t",$$->position,", " , $1->value , ", ",$3->value);
 													   	}
 | factor adds {$$=malloc(sizeof(Exp)); 
 					$$->position = $1->position;

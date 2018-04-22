@@ -482,14 +482,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    97,    97,   106,   110,   115,   116,   119,   129,   132,
-     133,   134,   135,   138,   155,   158,   163,   166,   172,   177,
-     182,   193,   196,   201,   204,   210,   213,   219,   222,   223,
-     224,   225,   229,   230,   233,   238,   245,   251,   256,   263,
-     264,   267,   278,   281,   281,   281,   283,   315,   319,   349,
-     350,   352,   353,   354,   355,   356,   357,   360,   365,   371,
-     375,   376,   379,   380,   384,   389,   392,   393,   396,   397,
-     398,   399,   403,   411,   466,   467,   470,   474
+       0,    96,    96,   105,   109,   114,   115,   118,   128,   131,
+     132,   133,   134,   137,   154,   157,   162,   165,   171,   176,
+     181,   192,   195,   200,   203,   209,   212,   218,   221,   222,
+     223,   224,   228,   229,   232,   237,   244,   250,   255,   262,
+     263,   266,   277,   280,   280,   280,   282,   314,   318,   348,
+     349,   351,   352,   353,   354,   355,   356,   359,   364,   370,
+     374,   375,   378,   379,   383,   388,   391,   392,   395,   396,
+     397,   398,   402,   410,   465,   466,   469,   473
 };
 #endif
 
@@ -1352,10 +1352,10 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 97 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 96 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
-    (yyval.stmt)->code = mergeStrings(3, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n", function_variables, (yyvsp[0].stmt)->code);
+    (yyval.stmt)->code = mergeStrings(3, "\t.data\n\tnewln:\t.asciiz\t\"\\n\"\n\n", function_variables, (yyvsp[0].stmt)->code);
     (yyval.stmt)->code = mergeStrings(2, (yyval.stmt)->code, "\n\tli\t$v0, 10\n\tsyscall\n");
     fprintf(yyout, "%s\n", (yyval.stmt)->code);
     name = (yyval.stmt)->code;
@@ -1364,7 +1364,7 @@ yyreduce:
     break;
 
   case 3:
-#line 106 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 105 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = mergeStrings(3, (yyvsp[-1].stmt)->code, "\n", (yyvsp[0].stmt)->code);
@@ -1373,7 +1373,7 @@ yyreduce:
     break;
 
   case 4:
-#line 110 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 109 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = (yyvsp[0].stmt);
 }
@@ -1381,19 +1381,19 @@ yyreduce:
     break;
 
   case 5:
-#line 115 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 114 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt) = (yyvsp[0].stmt);}
 #line 1387 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 116 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 115 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt) = (yyvsp[0].stmt);}
 #line 1393 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 119 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 118 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     if (!function)
@@ -1408,48 +1408,48 @@ yyreduce:
     break;
 
   case 8:
-#line 129 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 128 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1414 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 132 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 131 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {	(yyval.type) = 1; }
 #line 1420 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 133 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 132 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {	(yyval.type) = 2;}
 #line 1426 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 134 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 133 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.type) = 3;}
 #line 1432 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 135 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 134 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1438 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 138 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 137 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {   
     (yyval.stmt) = malloc(sizeof(Stmt));
     if (first_function == 1) {
-        (yyval.stmt)->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name,":\n\t", (yyvsp[-2].stmt)->code, "\n\t", (yyvsp[0].stmt)->code, "\n");
+        (yyval.stmt)->code = mergeStrings(9, "\n\t.text\n\t.globl\t", function_name, "\n", function_name, ":\n\t", (yyvsp[-2].stmt)->code, "\t", (yyvsp[0].stmt)->code, "");
         (yyval.stmt)->code = mergeStrings(2, (yyval.stmt)->code, "\n\tjr\t$ra\n");
         first_function = 0;
     } else if (strcmp("main", function_name) == 0) {
-        (yyval.stmt)->code = mergeStrings(5, function_name, ":\n\t", (yyvsp[-2].stmt)->code, "\n\t", (yyvsp[0].stmt)->code, "\n");
+        (yyval.stmt)->code = mergeStrings(5, function_name, ":\n\t", (yyvsp[-2].stmt)->code, "\t", (yyvsp[0].stmt)->code, "\n");
         first_function = 0;
     } else {
-        (yyval.stmt)->code = mergeStrings(6, function_name, ":\n\t", (yyvsp[-2].stmt)->code, "\n\t", (yyvsp[0].stmt)->code, "\n");
+        (yyval.stmt)->code = mergeStrings(6, function_name, ":\n\t", (yyvsp[-2].stmt)->code, "\t", (yyvsp[0].stmt)->code, "\n");
         (yyval.stmt)->code = mergeStrings(2, (yyval.stmt)->code, "\n\tjr\t$ra\n");
     }
     function = 0;
@@ -1460,13 +1460,13 @@ yyreduce:
     break;
 
   case 14:
-#line 155 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 154 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1466 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 158 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 157 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     function_name = (yyvsp[-1].str); 
     function = 1;
@@ -1475,7 +1475,7 @@ yyreduce:
     break;
 
   case 16:
-#line 163 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 162 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = (yyvsp[0].stmt);
 }
@@ -1483,7 +1483,7 @@ yyreduce:
     break;
 
   case 17:
-#line 166 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 165 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = "";
@@ -1492,7 +1492,7 @@ yyreduce:
     break;
 
   case 18:
-#line 172 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 171 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = mergeStrings(2, (yyvsp[-2].stmt)->code, (yyvsp[0].stmt)->code);
@@ -1502,7 +1502,7 @@ yyreduce:
     break;
 
   case 19:
-#line 177 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 176 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = (yyvsp[0].stmt);    
 }
@@ -1510,7 +1510,7 @@ yyreduce:
     break;
 
   case 20:
-#line 182 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 181 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->start = createTemp();
@@ -1526,13 +1526,13 @@ yyreduce:
     break;
 
   case 21:
-#line 193 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 192 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1532 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 196 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 195 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = mergeStrings(2, (yyvsp[-2].stmt)->code, (yyvsp[-1].stmt)->code);
@@ -1541,7 +1541,7 @@ yyreduce:
     break;
 
   case 23:
-#line 201 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 200 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt)->code = mergeStrings(2, (yyvsp[-1].stmt)->code, (yyvsp[0].stmt)->code);
 }
@@ -1549,7 +1549,7 @@ yyreduce:
     break;
 
   case 24:
-#line 204 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 203 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = "";
@@ -1558,7 +1558,7 @@ yyreduce:
     break;
 
   case 25:
-#line 210 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 209 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt)->code = mergeStrings(2, (yyvsp[-1].stmt)->code, (yyvsp[0].stmt)->code);
 }
@@ -1566,7 +1566,7 @@ yyreduce:
     break;
 
   case 26:
-#line 213 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 212 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
     (yyval.stmt) = malloc(sizeof(Stmt));
     (yyval.stmt)->code = "";
@@ -1575,7 +1575,7 @@ yyreduce:
     break;
 
   case 27:
-#line 219 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 218 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)=malloc(sizeof(Stmt)); 
 						                (yyval.stmt)->code = (yyvsp[0].exp)->code;
 						               }
@@ -1583,43 +1583,43 @@ yyreduce:
     break;
 
   case 28:
-#line 222 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 221 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)= (yyvsp[0].stmt);}
 #line 1589 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 223 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 222 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)= (yyvsp[0].stmt);}
 #line 1595 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 224 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 223 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)= (yyvsp[0].stmt);}
 #line 1601 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 225 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 224 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)= (yyvsp[0].stmt);}
 #line 1607 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 229 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 228 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)= (yyvsp[-1].exp);}
 #line 1613 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 230 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 229 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1619 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 233 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 232 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
                (yyval.stmt)=malloc(sizeof(Stmt)); 	
 					(yyval.stmt)->start=createLabel();
@@ -1629,7 +1629,7 @@ yyreduce:
     break;
 
   case 35:
-#line 238 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 237 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
                   (yyval.stmt)=malloc(sizeof(Stmt)); 	
 						(yyval.stmt)->start=createLabel();
@@ -1640,7 +1640,7 @@ yyreduce:
     break;
 
   case 36:
-#line 245 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 244 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
                (yyval.stmt)=malloc(sizeof(Stmt)); 	
 					(yyval.stmt)->start=createLabel();
@@ -1651,13 +1651,13 @@ yyreduce:
     break;
 
   case 37:
-#line 251 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 250 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)=(yyvsp[0].stmt);}
 #line 1657 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 256 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 255 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)=malloc(sizeof(Stmt)); 	
 									(yyval.stmt)->start=createLabel();
 									(yyval.stmt)->next=createLabel();
@@ -1667,19 +1667,19 @@ yyreduce:
     break;
 
   case 39:
-#line 263 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 262 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)=malloc(sizeof(Exp));(yyval.stmt)->code="";}
 #line 1673 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 264 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 263 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.stmt)=malloc(sizeof(Exp)); (yyval.stmt)->code="";}
 #line 1679 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 267 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 266 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
                   (yyval.exp)=malloc(sizeof(Exp));
 						(yyval.exp)->value=(yyvsp[-2].exp)->value;
@@ -1695,13 +1695,13 @@ yyreduce:
     break;
 
   case 42:
-#line 278 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 277 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[0].exp);}
 #line 1701 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 283 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 282 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp)); 
 					 (yyval.exp)->position =createTemp();	
 					if(!function){	
@@ -1738,13 +1738,13 @@ yyreduce:
     break;
 
   case 47:
-#line 315 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 314 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1744 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 319 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 318 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp)); 
 					if(strcmp("LTEQ",(yyvsp[-1].op))==0){
 						(yyval.exp)->position =createTemp();	
@@ -1779,55 +1779,55 @@ yyreduce:
     break;
 
   case 49:
-#line 349 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 348 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[0].exp);}
 #line 1785 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 350 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 349 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {}
 #line 1791 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 352 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 351 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="LTEQ";}
 #line 1797 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 353 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 352 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="<";}
 #line 1803 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 354 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 353 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)=">";}
 #line 1809 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 355 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 354 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="GTEQ";}
 #line 1815 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 356 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 355 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="EQUAL";}
 #line 1821 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 357 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 356 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="NEQ";}
 #line 1827 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 360 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 359 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp));
 													   (yyval.exp)->position = createTemp();
 													   (yyval.exp)->value = (yyval.exp)->position;
@@ -1837,7 +1837,7 @@ yyreduce:
     break;
 
   case 58:
-#line 365 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 364 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp)); 
 					(yyval.exp)->position = (yyvsp[-1].exp)->position;
 					(yyval.exp)->value =(yyvsp[-1].exp)->position;
@@ -1848,37 +1848,37 @@ yyreduce:
     break;
 
   case 59:
-#line 371 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 370 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     { (yyval.exp)=(yyvsp[0].exp);}
 #line 1854 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 375 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 374 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="add";}
 #line 1860 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 376 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 375 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="sub";}
 #line 1866 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 379 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 378 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="addi\t";}
 #line 1872 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 380 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 379 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="addi\t";}
 #line 1878 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 384 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 383 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp)); 
 					(yyval.exp)->position =createTemp();
 					(yyval.exp)->value =(yyval.exp)->position;
@@ -1888,43 +1888,43 @@ yyreduce:
     break;
 
   case 65:
-#line 389 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 388 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
 #line 1894 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 392 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 391 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="mult";}
 #line 1900 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 393 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 392 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.op)="div";}
 #line 1906 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 396 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 395 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[-1].exp);}
 #line 1912 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 397 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 396 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[0].exp);}
 #line 1918 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 398 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 397 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[0].exp);}
 #line 1924 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 399 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 398 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(Exp)); 
 										 (yyval.exp)->position=createTemp();
 										 (yyval.exp)->value=(yyval.exp)->position;
@@ -1933,7 +1933,7 @@ yyreduce:
     break;
 
   case 72:
-#line 403 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 402 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=malloc(sizeof(exp)); 
 					(yyval.exp)->position=createTemp();
 					(yyval.exp)->value=(yyval.exp)->position;
@@ -1944,7 +1944,7 @@ yyreduce:
     break;
 
   case 73:
-#line 411 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 410 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {
 if(strcmp((yyvsp[-3].str),"print")==0){			
 						(yyval.exp)=malloc(sizeof(Exp)); 
@@ -2002,19 +2002,19 @@ if(strcmp((yyvsp[-3].str),"print")==0){
     break;
 
   case 74:
-#line 466 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 465 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {(yyval.exp)=(yyvsp[0].exp);empty=0;a_counter=0;}
 #line 2008 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 467 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 466 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     {empty=1;}
 #line 2014 "parser_952304_1003060_932787.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 470 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 469 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     { 
 									(yyval.exp)=(yyvsp[0].exp);char str[15];sprintf(str, "%d", a_counter);(yyval.exp)->code=mergeStrings(6,(yyvsp[-2].exp)->code,(yyvsp[0].exp)->code,"\n\tmove\t$a",str,", ",(yyvsp[0].exp)->value);
 									a_counter=0; 
@@ -2023,7 +2023,7 @@ if(strcmp((yyvsp[-3].str),"print")==0){
     break;
 
   case 77:
-#line 474 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
+#line 473 "parser_952304_1003060_932787.y" /* yacc.c:1646  */
     { 
 					(yyval.exp)=(yyvsp[0].exp);char str[15];sprintf(str, "%d", a_counter);
 					(yyval.exp)->code=mergeStrings(5,(yyvsp[0].exp)->code,"\n\tmove\t$a",str,", ",(yyvsp[0].exp)->value); a_counter++; }
@@ -2259,7 +2259,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 478 "parser_952304_1003060_932787.y" /* yacc.c:1906  */
+#line 477 "parser_952304_1003060_932787.y" /* yacc.c:1906  */
 
 int main(int argc, char *argv[]) {
   
