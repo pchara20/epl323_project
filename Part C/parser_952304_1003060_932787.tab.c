@@ -119,7 +119,7 @@
 	Andreas Costi			- acosti01 ID: 1003060					***
 	Stephanie Nicolaou		- snikol07 ID: 932787					***
 																	***
-	Part A - Compiler												***
+	Part C - Compilers												***
 	bison -d parser_952304_1003060_932787.y							***
 	flex preprocessor_952304_1003060_932787.fl						***
 	gcc parser_952304_1003060_932787.tab.c lex.yy.c -lfl -o a.out	***
@@ -129,7 +129,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "helper.h"
+#include "helper_functions_952304_1003060_932787.h"
 
 #define YYDEBUG 1
 extern char *yytext;

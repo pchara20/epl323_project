@@ -502,7 +502,7 @@ char *yytext;
 	Andreas Costi			- acosti01 ID: 1003060					***
 	Stephanie Nicolaou		- snikol07 ID: 932787					***
 																	***
-	Part A - Compiler												***
+	Part C - Compiler												***
 	bison -d parser_952304_1003060_932787.y							***
 	flex preprocessor_952304_1003060_932787.fl						***
 	gcc parser_952304_1003060_932787.tab.c lex.yy.c -lfl -o a.out	***
